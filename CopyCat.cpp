@@ -1,100 +1,81 @@
-﻿#include <iostream>
+﻿#include <string>
 #include <SDL.h>
+#include <SDL_image.h>
 
-using namespace std;
-
-const int SCREEN_WIDTH = 800;
+const int SCREEN_WIDTH = 1200;
 const int SCREEN_HEIGHT = 600;
-const char* WINDOW_TITLE = "Hello World!";
 
-void logErrorAndExit(const char* msg, const char* error)
-{
-    SDL_LogMessage(SDL_LOG_CATEGORY_APPLICATION, SDL_LOG_PRIORITY_ERROR, "%s: %s", msg, error);
-    SDL_Quit();
-}
+SDL_Window* g_window = NULL;
+SDL_Renderer* g_renderer = NULL;
+SDL_Texture* g_bkground = NULL;
 
-SDL_Window* initSDL(int SCREEN_WIDTH, int SCREEN_HEIGHT, const char* WINDOW_TITLE)
-{
-    if (SDL_Init(SDL_INIT_EVERYTHING) != 0)
-        logErrorAndExit("SDL_Init", SDL_GetError());
-
-    SDL_Window* window = SDL_CreateWindow(WINDOW_TITLE, SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, SCREEN_WIDTH, SCREEN_HEIGHT, SDL_WINDOW_SHOWN);
-    //full screen
-    //window = SDL_CreateWindow(WINDOW_TITLE, SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, SCREEN_WIDTH, SCREEN_HEIGHT, SDL_WINDOW_FULLSCREEN_DESKTOP);
-    if (window == nullptr) logErrorAndExit("CreateWindow", SDL_GetError());
-
-    return window;
-}
-
-SDL_Renderer* createRenderer(SDL_Window* window)
-{
-    SDL_Renderer* renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED |
-        SDL_RENDERER_PRESENTVSYNC);
-    //Khi chạy trong máy ảo (ví dụ phòng máy ở trường)
-    //renderer = SDL_CreateSoftwareRenderer(SDL_GetWindowSurface(window));
-
-    if (renderer == nullptr) logErrorAndExit("CreateRenderer", SDL_GetError());
-
-    SDL_SetHint(SDL_HINT_RENDER_SCALE_QUALITY, "linear");
-    SDL_RenderSetLogicalSize(renderer, SCREEN_WIDTH, SCREEN_HEIGHT);
-
-    return renderer;
-}
-
-void quitSDL(SDL_Window* window, SDL_Renderer* renderer)
-{
-    SDL_DestroyRenderer(renderer);
-    SDL_DestroyWindow(window);
-    SDL_Quit();
-}
-
-void waitUntilKeyPressed()
-{
-    SDL_Event e;
-    while (true) {
-        if (SDL_PollEvent(&e) != 0 &&
-            (e.type == SDL_KEYDOWN || e.type == SDL_QUIT))
-            return;
-        SDL_Delay(100);
+bool Init() {
+    if (SDL_Init(SDL_INIT_VIDEO) != 0) {
+        return false;
     }
+
+    g_window = SDL_CreateWindow("SDL2 Window", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, SCREEN_WIDTH, SCREEN_HEIGHT, SDL_WINDOW_SHOWN);
+    if (g_window == NULL) {
+        return false;
+    }
+
+    g_renderer = SDL_CreateRenderer(g_window, -1, SDL_RENDERER_ACCELERATED);
+    if (g_renderer == NULL) {
+        return false;
+    }
+
+    return true;
 }
 
-void drawSomething(SDL_Window* window, SDL_Renderer* renderer) {
-    SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);   // white
-    SDL_RenderDrawPoint(renderer, SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2);
-    SDL_SetRenderDrawColor(renderer, 255, 0, 0, 255);   // red
-    SDL_RenderDrawLine(renderer, 100, 100, 200, 200);
-    SDL_Rect filled_rect;
-    filled_rect.x = SCREEN_WIDTH - 400;
-    filled_rect.y = SCREEN_HEIGHT - 150;
-    filled_rect.w = 320;
-    filled_rect.h = 100;
-    SDL_SetRenderDrawColor(renderer, 0, 255, 0, 255); // green
-    SDL_RenderFillRect(renderer, &filled_rect);
+SDL_Texture* LoadImage(const std::string& file_path) {
+    SDL_Surface* load_image = IMG_Load(file_path.c_str());
+    if (load_image == NULL) {
+        return NULL;
+    }
+
+    SDL_Texture* optimize_image = SDL_CreateTextureFromSurface(g_renderer, load_image);
+    SDL_FreeSurface(load_image);
+    return optimize_image;
 }
 
-int main(int argc, char* argv[])
-{
-    //Khởi tạo môi trường đồ họa
-    SDL_Window* window = initSDL(SCREEN_WIDTH, SCREEN_HEIGHT, WINDOW_TITLE);
-    SDL_Renderer* renderer = createRenderer(window);
-
-    //Xóa màn hình
-    SDL_RenderClear(renderer);
-
-    //Vẽ gì đó
-    drawSomething(window, renderer);
-
-    //Hiện bản vẽ ra màn hình
-    //Khi chạy tại môi trường bình thường
-    SDL_RenderPresent(renderer);
-    //Khi chạy trong máy ảo (ví dụ phòng máy ở trường)
-    //SDL_UpdateWindowSurface(window);
-
-    //Đợi phím bất kỳ trước khi đóng môi trường đồ họa và kết thúc chương trình
-    waitUntilKeyPressed();
-    quitSDL(window, renderer);
-    return 0;
+void ApplySurface(SDL_Texture* texture, int x, int y) {
+    SDL_Rect destRect = { x, y, SCREEN_WIDTH, SCREEN_HEIGHT };
+    SDL_RenderCopy(g_renderer, texture, NULL, &destRect);
 }
 
+void CleanUp() {
+    SDL_DestroyTexture(g_bkground);
+    SDL_DestroyRenderer(g_renderer);
+    SDL_DestroyWindow(g_window);
+}
 
+int main(int argc, char* argv[]) {
+    bool is_quit = false;
+    SDL_Event e;
+
+    if (!Init()) {
+        return 0;
+    }
+
+    g_bkground = LoadImage("bg2.png");
+    if (g_bkground == NULL) {
+        return 0;
+    }
+
+    SDL_RenderClear(g_renderer);
+    ApplySurface(g_bkground, 0, 0);
+    SDL_RenderPresent(g_renderer);
+
+    while (!is_quit) {
+        while (SDL_PollEvent(&e) != 0) {
+            if (e.type == SDL_QUIT) {
+                is_quit = true;
+                break;
+            }
+        }
+    }
+
+    CleanUp();
+    SDL_Quit();
+    return 1;
+}
