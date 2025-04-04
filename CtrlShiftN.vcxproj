@@ -134,7 +134,13 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="BaseOb.cpp" />
+    <ClCompile Include="commonfuc.cpp" />
     <ClCompile Include="CopyCat.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="BaseOb.h" />
+    <ClInclude Include="commonfuc.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
