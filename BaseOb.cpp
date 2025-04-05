@@ -31,3 +31,25 @@ bool BaseObject::loadImage(std::string file_path, SDL_Renderer* screen)
 	p_object_ = new_texture;
 	return p_object_ != NULL;
 }
+void BaseObject::render(SDL_Renderer* des, SDL_Rect* clip)
+{
+	SDL_Rect render_quad = { rect_.x,rect_.y,width_,height_ };
+	if (clip != NULL)
+	{
+		render_quad.w = clip->w;
+		render_quad.h = clip->h;
+	}
+	SDL_RenderCopy(des, p_object_, clip, &render_quad);
+}
+void BaseObject::Free()
+{
+	if (p_object_ != NULL)
+	{
+		SDL_DestroyTexture(p_object_);
+		p_object_ = NULL;
+	}
+	rect_.x = 0;
+	rect_.y = 0;
+	width_ = 0;
+	height_ = 0;
+}

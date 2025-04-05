@@ -15,7 +15,7 @@ public:
 	bool loadImage(std::string file_path,SDL_Renderer* screen);		
 	void render(SDL_Renderer* des, SDL_Rect* clip = NULL);
 	
-	
+	void Free();
 protected:
 	SDL_Texture* p_object_;
 	SDL_Rect rect_;

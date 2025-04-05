@@ -13,7 +13,7 @@ static SDL_Renderer* g_screen = NULL;
 static SDL_Event g_event;
 
 //thong so man hinh()()()
-const int SCREEN_WIDTH = 1280;
+const int SCREEN_WIDTH = 1200;
 const int SCREEN_HEIGHT = 640;
 const int SCREEN_BPP = 32;
 
@@ -22,7 +22,22 @@ const int SCREEN_BPP = 32;
 const int COLOR_KEY_R = 167;
 const int COLOR_KEY_G = 175;
 const int COLOR_KEY_B = 180;
+const int RENDER_DRAW_COLOR = 0xff;
 
+#define TILE_SIZE 64
+
+#define MAX_MAP_X 400
+#define MAX_MAP_Y 10
+
+typedef struct Map
+{
+	int start_x;
+	int start_y;
+	int max_x;
+	int max_y;
+	int tile[MAX_MAP_X][MAX_MAP_Y];
+	char* file_name_;
+}Map;
 #endif
 
 
