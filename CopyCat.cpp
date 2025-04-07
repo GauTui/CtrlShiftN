@@ -1,6 +1,7 @@
 ﻿#include"commonfuc.h"
 #include"BaseOb.h"
 #include"map.h"
+#include"Player.h"
 
 BaseObject g_background;
 //Lai Tuan Duc 24021414 hehe;
@@ -29,7 +30,7 @@ bool InitData() {
 			}
 		}
 	}
-
+	return success;
 }
 
 bool loadBackground() {
@@ -56,15 +57,22 @@ int main(int argc, char* argv[]) {
 	if (loadBackground() == false) {
 		return -1;
 	}
+	
 	GameMap game_map;
 	game_map.LoadMap("map1/map01.dat");
 	game_map.LoadTiles(g_screen);
+	
+	PlayerObject player;
+	player.LoadImg("img/sangphai.png", g_screen);
+	player.set_clips();
+
 	bool is_quit = false;
 	while (!is_quit) {
 		while (SDL_PollEvent(&g_event) != 0) {
 			if (g_event.type == SDL_QUIT) {
 				is_quit = true;
 			}
+			player.HandleInputAction(g_event, g_screen);
 		}
 		SDL_SetRenderDrawColor(g_screen, RENDER_DRAW_COLOR, RENDER_DRAW_COLOR, RENDER_DRAW_COLOR, RENDER_DRAW_COLOR);
 
@@ -73,6 +81,12 @@ int main(int argc, char* argv[]) {
 		g_background.render(g_screen);
 
 		game_map.DrawMap(g_screen);
+
+		Map map_data = game_map.getMap();
+
+		player.DoPlay(map_data);
+
+		player.show(g_screen);
 
 		SDL_RenderPresent(g_screen);
 	}

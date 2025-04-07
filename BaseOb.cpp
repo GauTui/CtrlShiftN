@@ -5,13 +5,12 @@ BaseObject::BaseObject()
 	p_object_ = NULL;
 	rect_.x = 0;
 	rect_.y = 0;
-	width_ = 0;
-	height_ = 0;
-
+	rect_.w = 0;
+	rect_.h = 0;
 }
 BaseObject::~BaseObject()
 {
-	
+	Free();
 }
 bool BaseObject::loadImage(std::string file_path, SDL_Renderer* screen)
 {
@@ -23,8 +22,8 @@ bool BaseObject::loadImage(std::string file_path, SDL_Renderer* screen)
 		new_texture = SDL_CreateTextureFromSurface(screen, load_surface);
 		if (new_texture != NULL)
 		{
-			width_ = load_surface->w;
-			height_ = load_surface->h;
+			rect_.w = load_surface->w;
+			rect_.h = load_surface->h;
 		}
 		SDL_FreeSurface(load_surface);
 	}
@@ -33,7 +32,7 @@ bool BaseObject::loadImage(std::string file_path, SDL_Renderer* screen)
 }
 void BaseObject::render(SDL_Renderer* des, SDL_Rect* clip)
 {
-	SDL_Rect render_quad = { rect_.x,rect_.y,width_,height_ };
+	SDL_Rect render_quad = { rect_.x,rect_.y,rect_.w,rect_.h };
 	if (clip != NULL)
 	{
 		render_quad.w = clip->w;
@@ -50,6 +49,6 @@ void BaseObject::Free()
 	}
 	rect_.x = 0;
 	rect_.y = 0;
-	width_ = 0;
-	height_ = 0;
+	rect_.w = 0;
+	rect_.h = 0;
 }
