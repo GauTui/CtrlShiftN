@@ -45,6 +45,7 @@ typedef struct Map
 	int max_x;
 	int max_y;
 	int tile[MAX_MAP_X][MAX_MAP_Y];
+	//char* file_name_;
 }Map;
 #endif
 

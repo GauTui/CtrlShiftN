@@ -65,7 +65,7 @@ int main(int argc, char* argv[]) {
 	PlayerObject player;
 	player.LoadImg("img/sangphai.png", g_screen);
 	player.set_clips();
-
+	
 	bool is_quit = false;
 	while (!is_quit) {
 		while (SDL_PollEvent(&g_event) != 0) {
@@ -84,9 +84,15 @@ int main(int argc, char* argv[]) {
 
 		Map map_data = game_map.getMap();
 
+		player.SetMapXY(map_data.start_x, map_data.start_y);
+
 		player.DoPlay(map_data);
 
 		player.show(g_screen);
+
+		game_map.SetMapXY(map_data);
+		 
+		game_map.DrawMap(g_screen);
 
 		SDL_RenderPresent(g_screen);
 	}

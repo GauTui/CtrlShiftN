@@ -10,9 +10,9 @@ void GameMap::LoadMap(const char* name) {
 	game_map_.max_y = 0;
 	for (int i = 0; i < MAX_MAP_Y; ++i) {
 		for (int j = 0; j < MAX_MAP_X; ++j) {
-			fscanf_s(fp, "%d", &game_map_.tile[j][i]);
-			int val = game_map_.tile[j][i];
-			if (val > 0) {
+			fscanf_s(fp, "%d", &game_map_.tile[i][j]);
+			int val = game_map_.tile[i][j];
+			if (val > 0 ) {
 				if (j > game_map_.max_x) {
 					game_map_.max_x = j;
 				}
@@ -27,6 +27,8 @@ void GameMap::LoadMap(const char* name) {
 
 	game_map_.start_x = 0;
 	game_map_.start_y = 0;
+
+	//game_map_.file_name_ = name;
 
 	fclose(fp);
 
@@ -60,17 +62,19 @@ void GameMap::DrawMap(SDL_Renderer* screen) {
 	map_y = game_map_.start_y / TILE_SIZE;
 	y1 = (game_map_.start_y % TILE_SIZE) * -1;
 	y2 = y1 + SCREEN_HEIGHT + (y1 == 0 ? 0 : TILE_SIZE);
-
+	
 	for (int i = y1; i < y2; i += TILE_SIZE) {
 		map_x = game_map_.start_x / TILE_SIZE;
+		
 		for (int j = x1; j < x2; j += TILE_SIZE) {
-			int val = game_map_.tile[map_x][map_y];
+			if (map_x >= MAX_MAP_X || map_y >= MAX_MAP_Y) continue;
+			int val = game_map_.tile[map_y][map_x];
 			if (val > 0) {
 				tile_mat[val].setRect(j, i);
+
 				tile_mat[val].render(screen);
 			}
 			map_x++;
-
 		}
 		map_y++;
 	}
