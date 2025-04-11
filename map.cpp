@@ -1,28 +1,45 @@
 #include "map.h"
+#include "TextM.h"
+#include "game.h"
 
-Map::Map(SDL_Renderer* ren) : renderer(ren) {
-    wall = TextureManager::LoadTexture("assets/wall.png", ren);
-    coin = TextureManager::LoadTexture("assets/coin.png", ren);
+const int TILE_SIZE = 32;
+int level1[20][20] = {
+    {1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1},
+    {1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
+    {1,0,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,0,0,1},
+    {1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
+    {1,0,1,1,1,1,1,1,1,0,0,0,1,1,1,1,1,1,0,1},
+    {1,0,0,0,0,0,0,0,1,0,1,0,1,0,0,0,0,0,0,1},
+    {1,1,1,1,1,1,1,0,1,0,1,0,1,0,1,1,1,1,0,1},
+    {1,0,0,0,0,0,1,0,0,0,0,0,1,0,0,0,0,1,0,1},
+    {1,0,1,1,1,0,1,1,1,1,1,1,1,0,1,1,0,1,0,1},
+    {1,0,1,0,0,0,0,0,0,0,0,0,0,0,0,1,0,1,0,1},
+    {1,0,1,0,1,1,1,1,1,1,1,1,1,1,0,1,0,1,0,1},
+    {1,0,1,0,1,0,0,0,0,0,0,0,0,1,0,1,0,1,0,1},
+    {1,0,1,0,1,0,1,1,1,1,1,1,0,1,0,1,0,1,0,1},
+    {1,0,1,0,1,0,0,0,0,0,0,1,0,1,0,1,0,1,0,1},
+    {1,0,1,0,1,1,1,1,1,1,0,1,0,1,0,1,0,1,0,1},
+    {1,0,0,0,0,0,0,0,0,1,0,1,0,0,0,1,0,1,0,1},
+    {1,1,1,1,1,1,1,1,0,1,0,1,1,1,1,1,0,1,0,1},
+    {1,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,1,0,1},
+    {1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1},
+    {1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1}
+};
 
+Map::Map() {
+    wall = TextureManager::LoadTexture("img/sangphai.png");
     src = { 0, 0, 32, 32 };
     dest = { 0, 0, 32, 32 };
 }
 
-void Map::DrawMap() {
-    for (int row = 0; row < 11; row++) {
+void Map::drawMap() {
+    for (int row = 0; row < 20; row++) {
         for (int col = 0; col < 20; col++) {
-            dest.x = col * 32;
-            dest.y = row * 32;
-
-            switch (map[row][col]) {
-            case 1:
-                SDL_RenderCopy(renderer, wall, &src, &dest);
-                break;
-            case 2:
-                SDL_RenderCopy(renderer, coin, &src, &dest);
-                break;
-            default:
-                break;
+            int tileType = level1[row][col];
+            if (tileType == 1) {
+                dest.x = col * TILE_SIZE;
+                dest.y = row * TILE_SIZE;
+                SDL_RenderCopy(Game::renderer, wall, &src, &dest);
             }
         }
     }

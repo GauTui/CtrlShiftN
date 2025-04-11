@@ -1,6 +1,9 @@
-#include "game.h"
+#include "Game.h"
+#include "TextM.h"
 
-Game::Game() : isRunning(false), window(nullptr), renderer(nullptr), gameMap(nullptr) {}
+SDL_Renderer* Game::renderer = nullptr;
+
+Game::Game() : isRunning(false), window(nullptr), pacman(nullptr), map(nullptr) {}
 
 Game::~Game() {}
 
@@ -9,12 +12,14 @@ void Game::init(const char* title, int xpos, int ypos, int width, int height, bo
     if (SDL_Init(SDL_INIT_VIDEO) == 0) {
         window = SDL_CreateWindow(title, xpos, ypos, width, height, flags);
         renderer = SDL_CreateRenderer(window, -1, 0);
-        SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
-
+        if (renderer) {
+            SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
+        }
         isRunning = true;
-
-        gameMap = new Map(renderer);
     }
+
+    pacman = new Pacman("img/bg2.png", 1, 1);
+    map = new Map();
 }
 
 void Game::handleEvents() {
@@ -23,15 +28,17 @@ void Game::handleEvents() {
     if (event.type == SDL_QUIT) {
         isRunning = false;
     }
+    pacman->handleInput(event);
 }
 
 void Game::update() {
-
+    pacman->update();
 }
 
 void Game::render() {
     SDL_RenderClear(renderer);
-    gameMap->DrawMap(); 
+    map->drawMap();
+    pacman->render();
     SDL_RenderPresent(renderer);
 }
 

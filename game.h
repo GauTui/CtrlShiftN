@@ -1,6 +1,7 @@
 #pragma once
 #include <SDL.h>
-#include "map.h"
+#include "nhanvatchinh.h"
+#include "Map.h"
 
 class Game {
 public:
@@ -14,9 +15,12 @@ public:
     void clean();
     bool running() { return isRunning; }
 
+    static SDL_Renderer* renderer;
+
 private:
     bool isRunning;
     SDL_Window* window;
-    SDL_Renderer* renderer;
-    Map* gameMap;
+
+    Pacman* pacman;
+    Map* map;
 };
