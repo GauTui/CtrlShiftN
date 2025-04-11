@@ -1,82 +1,29 @@
-#include"map.h"
+#include "map.h"
 
-void GameMap::LoadMap(const char* name) {
-	FILE* fp = NULL;
-	fopen_s(&fp, name, "rb");
-	if (fp == NULL) {
-		return;
-	}
-	game_map_.max_x = 0;
-	game_map_.max_y = 0;
-	for (int i = 0; i < MAX_MAP_Y; ++i) {
-		for (int j = 0; j < MAX_MAP_X; ++j) {
-			fscanf_s(fp, "%d", &game_map_.tile[i][j]);
-			int val = game_map_.tile[i][j];
-			if (val > 0 ) {
-				if (j > game_map_.max_x) {
-					game_map_.max_x = j;
-				}
-				if (i > game_map_.max_y) {
-					game_map_.max_y = i;
-				}
-			}
-		}
-	}
-	game_map_.max_x = (game_map_.max_x + 1) * TILE_SIZE;
-	game_map_.max_y = (game_map_.max_y + 1) * TILE_SIZE;
+Map::Map(SDL_Renderer* ren) : renderer(ren) {
+    wall = TextureManager::LoadTexture("assets/wall.png", ren);
+    coin = TextureManager::LoadTexture("assets/coin.png", ren);
 
-	game_map_.start_x = 0;
-	game_map_.start_y = 0;
-
-	//game_map_.file_name_ = name;
-
-	fclose(fp);
-
+    src = { 0, 0, 32, 32 };
+    dest = { 0, 0, 32, 32 };
 }
-void GameMap::LoadTiles(SDL_Renderer* screen) {
-	char file_img[30];
-	FILE* fp = NULL;
-	for (int i = 0; i < MAX_TILES; i++) {
-		sprintf_s(file_img, "map1/%d.png", i);
-		fopen_s(&fp, file_img, "rb");
-		if (fp == NULL) {
-			continue;
-		}
-		fclose(fp);
-		tile_mat[i].loadImage(file_img, screen);
-	}
-}
-void GameMap::DrawMap(SDL_Renderer* screen) {
-	int x1 = 0;
-	int x2 = 0;
-	int y1 = 0;
-	int y2 = 0;
-	
-	int map_x = 0;
-	int map_y = 0;
 
-	map_x = game_map_.start_x / TILE_SIZE;
-	x1 = (game_map_.start_x % TILE_SIZE)* -1;
-	x2 = x1 + SCREEN_WIDTH + (x1 ==0 ? 0 : TILE_SIZE);
+void Map::DrawMap() {
+    for (int row = 0; row < 11; row++) {
+        for (int col = 0; col < 20; col++) {
+            dest.x = col * 32;
+            dest.y = row * 32;
 
-	map_y = game_map_.start_y / TILE_SIZE;
-	y1 = (game_map_.start_y % TILE_SIZE) * -1;
-	y2 = y1 + SCREEN_HEIGHT + (y1 == 0 ? 0 : TILE_SIZE);
-	
-	for (int i = y1; i < y2; i += TILE_SIZE) {
-		map_x = game_map_.start_x / TILE_SIZE;
-		
-		for (int j = x1; j < x2; j += TILE_SIZE) {
-			if (map_x >= MAX_MAP_X || map_y >= MAX_MAP_Y) continue;
-			int val = game_map_.tile[map_y][map_x];
-			if (val > 0) {
-				tile_mat[val].setRect(j, i);
-
-				tile_mat[val].render(screen);
-			}
-			map_x++;
-		}
-		map_y++;
-	}
-
+            switch (map[row][col]) {
+            case 1:
+                SDL_RenderCopy(renderer, wall, &src, &dest);
+                break;
+            case 2:
+                SDL_RenderCopy(renderer, coin, &src, &dest);
+                break;
+            default:
+                break;
+            }
+        }
+    }
 }
