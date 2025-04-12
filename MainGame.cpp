@@ -10,7 +10,7 @@ int main(int argc, char* argv[]) {
     int frameTime;
 
     game = new Game();
-    game->init("Pacman", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, 640, 640, false);
+    game->init("Lai Tuan Duc-24021414--UETman", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, 640, 640, false);
 
     while (game->running()) {
         frameStart = SDL_GetTicks();

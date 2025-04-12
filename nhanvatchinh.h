@@ -1,4 +1,5 @@
 #pragma once
+///nhanvatchinh.h
 #include <SDL.h>
 
 class Pacman {
@@ -7,7 +8,6 @@ public:
     void handleInput(SDL_Event& event);
     void update();
     void render();
-
 private:
     int tileX, tileY;
     SDL_Texture* texture;
