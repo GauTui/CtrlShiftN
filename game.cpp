@@ -1,11 +1,14 @@
 #include "Game.h"
 #include "TextM.h"
+#include "nhanvatchinh.h"
+#include "map.h"
 
+int score = 0;
+Map* Gmap = nullptr;
 SDL_Renderer* Game::renderer = nullptr;
-
-Game::Game() : isRunning(false), window(nullptr), pacman(nullptr), map(nullptr) {}
-
+Game::Game() : isRunning(false), window(nullptr), pacman(nullptr), Gmap(nullptr) {}
 Game::~Game() {}
+
 
 void Game::init(const char* title, int xpos, int ypos, int width, int height, bool fullscreen) {
     int flags = fullscreen ? SDL_WINDOW_FULLSCREEN : 0;
@@ -19,7 +22,8 @@ void Game::init(const char* title, int xpos, int ypos, int width, int height, bo
     }
 
     pacman = new Pacman("img/bg2.png", 1, 1);
-    map = new Map();
+    Gmap = new Map();
+    Gmap->initCoins();
 }
 
 void Game::handleEvents() {
@@ -33,11 +37,19 @@ void Game::handleEvents() {
 
 void Game::update() {
     pacman->update();
+
+    //int pacX = pacman->getX() / Gmap->getTileSize();
+    //int pacY = pacman->getY() / Gmap->getTileSize();
+
+    //if (Gmap->collectCoinAt(pacY, pacX)) {
+        //score += 10; 
+    //}
 }
+
 
 void Game::render() {
     SDL_RenderClear(renderer);
-    map->drawMap();
+    Gmap->drawMap();
     pacman->render();
     SDL_RenderPresent(renderer);
 }

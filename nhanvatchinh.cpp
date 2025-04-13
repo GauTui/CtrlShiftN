@@ -4,8 +4,9 @@
 #include "map.h"
 
 //nhanvatchinh.cpp
-
+extern Map* Gmap;
 const int TILE_SIZE = 32;
+extern int score;
 
 
 bool dichuyen(int tileX, int tileY, int tileW, int tileH) {
@@ -17,14 +18,11 @@ bool dichuyen(int tileX, int tileY, int tileW, int tileH) {
         );
 }
 
-
-
 Pacman::Pacman(const char* textureFile, int x, int y) : tileX(x), tileY(y) {
     texture = TextureManager::LoadTexture(textureFile);
     srcRect = { 0, 0, 32, 32 };
     destRect = { x * TILE_SIZE, y * TILE_SIZE, 32, 32 };
 }
-
 
 void Pacman::handleInput(SDL_Event& event) {
     if (event.type == SDL_KEYDOWN) {
@@ -40,19 +38,23 @@ void Pacman::handleInput(SDL_Event& event) {
 
         int pixelX = nextTileX * TILE_SIZE;
         int pixelY = nextTileY * TILE_SIZE;
+        
 
-        if (dichuyen(pixelX, pixelY, 32, 32)) {
-            tileX = nextTileX;
-            tileY = nextTileY;
+        if (nextTileX >= 0 && nextTileX < 20 && nextTileY >= 0 && nextTileY < 20) {
+            if (dichuyen(pixelX, pixelY, 32, 32)) {
+                tileX = nextTileX;
+                tileY = nextTileY;
+            }
         }
     }
 }
 
-
-
 void Pacman::update() {
     destRect.x = tileX * TILE_SIZE;
     destRect.y = tileY * TILE_SIZE;
+    if (Gmap->collectCoinAt(tileX, tileY)) {
+        score += 10;
+    }
 }
 
 void Pacman::render() {
