@@ -8,7 +8,9 @@ extern Map* Gmap;
 const int TILE_SIZE = 32;
 extern int score;
 
-
+SDL_Rect Pacman::getRect() const {
+    return destRect;
+}
 bool dichuyen(int tileX, int tileY, int tileW, int tileH) {
     return !(
         isWall(tileX, tileY) ||

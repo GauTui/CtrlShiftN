@@ -83,8 +83,8 @@ bool Map::collectCoinAt(int row, int col) {
         return false;
     }
 
-    if (coins[row][col] == 1) {
-        coins[row][col] = 0;
+    if (coins[col][row] == 1) {
+        coins[col][row] = 0;
         return true;
     }
     return false;

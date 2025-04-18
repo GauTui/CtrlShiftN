@@ -1,8 +1,15 @@
+// Game.h
 #pragma once
 #include <SDL.h>
+#include <SDL_ttf.h>
 #include "nhanvatchinh.h"
 #include "Map.h"
+#include <sstream>
+#include <string>
+#include"giangvien.h"
+#include<vector.>
 
+extern int score;
 class Game {
 public:
     Game();
@@ -16,11 +23,13 @@ public:
     bool running() { return isRunning; }
 
     static SDL_Renderer* renderer;
+
 private:
     bool isRunning;
     SDL_Window* window;
-
+    TTF_Font* font;
     Pacman* pacman;
-    Map* Gmap;
-	int score;
+    void renderScore();
+    std::vector<GiangVien*> enemies;
+    void kiemtravacham();
 };

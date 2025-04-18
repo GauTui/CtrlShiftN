@@ -20,12 +20,14 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="game.cpp" />
+    <ClCompile Include="giangvien.cpp" />
     <ClCompile Include="map.cpp" />
     <ClCompile Include="MainGame.cpp" />
     <ClCompile Include="nhanvatchinh.cpp" />
     <ClCompile Include="TextM.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="giangvien.h" />
     <ClInclude Include="game.h" />
     <ClInclude Include="map.h" />
     <ClInclude Include="nhanvatchinh.h" />

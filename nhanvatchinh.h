@@ -1,6 +1,7 @@
 #pragma once
 ///nhanvatchinh.h
 #include <SDL.h>
+#include"giangvien.h"
 
 class Pacman {
 public:
@@ -10,6 +11,8 @@ public:
     void render();
     int getX() const { return x; }
     int getY() const { return y; }
+    SDL_Rect getRect() const;
+
 private:
     int x, y;
     int tileX, tileY;
