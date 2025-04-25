@@ -24,6 +24,12 @@ Pacman::Pacman(const char* textureFile, int x, int y) : tileX(x), tileY(y) {
     texture = TextureManager::LoadTexture(textureFile);
     srcRect = { 0, 0, 32, 32 };
     destRect = { x * TILE_SIZE, y * TILE_SIZE, 32, 32 };
+    animTexture = IMG_LoadTexture(Game::renderer, "img/animation.png");
+    frameWidth = 32;
+    frameHeight = 32;
+    currentFrame = 0;
+    frameDelay = 10;
+    frameTimer = 0;
 }
 
 void Pacman::handleInput(SDL_Event& event) {
@@ -57,8 +63,16 @@ void Pacman::update() {
     if (Gmap->collectCoinAt(tileX, tileY)) {
         score += 10;
     }
+    frameTimer++;
+    if (frameTimer >= frameDelay) {
+        currentFrame = (currentFrame + 1) % 8;
+        frameTimer = 0;
+    }
 }
 
 void Pacman::render() {
-    SDL_RenderCopy(Game::renderer, texture, &srcRect, &destRect);
+   // SDL_RenderCopy(Game::renderer, texture, &srcRect, &destRect);
+    SDL_Rect srcRect = { currentFrame * frameWidth, 0, frameWidth, frameHeight };
+    SDL_Rect destRect = getRect();
+    SDL_RenderCopy(Game::renderer, animTexture, &srcRect, &destRect);
 }

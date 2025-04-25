@@ -14,6 +14,11 @@ public:
     SDL_Rect getRect() const;
 
 private:
+    int frameWidth, frameHeight;
+    int currentFrame;
+    int frameDelay;
+    int frameTimer;
+    SDL_Texture* animTexture;
     int x, y;
     int tileX, tileY;
     SDL_Texture* texture;

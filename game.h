@@ -26,7 +26,11 @@ public:
 
 private:
     bool isRunning;
+    bool GameOver = false;
+	bool BanThang = false;
     SDL_Window* window;
+    SDL_Texture* hinhGameOver = nullptr;
+    SDL_Texture* hinhWin = nullptr;
     TTF_Font* font;
     Pacman* pacman;
     void renderScore();

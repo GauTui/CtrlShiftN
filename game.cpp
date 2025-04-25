@@ -32,6 +32,18 @@ void Game::init(const char* title, int xpos, int ypos, int width, int height, bo
         }
         isRunning = true;
     }
+    if (IMG_Init(IMG_INIT_PNG) == 0) {
+        SDL_Log("IMG_Init failed: %s", IMG_GetError());
+        isRunning = false;
+        return;
+    }
+    hinhGameOver = IMG_LoadTexture(renderer, "img/gameover.png");
+	hinhWin = IMG_LoadTexture(renderer, "img/win.png");
+    if (!hinhGameOver) {
+        SDL_Log("Failed to load game over image: %s", IMG_GetError());
+        isRunning = false;
+        return;
+    }
 
     pacman = new Pacman("img/bg21.jpg", 1, 1);
     Gmap = new Map();
@@ -46,8 +58,8 @@ void Game::kiemtravacham() {
     for (auto enemy : enemies) {
         SDL_Rect enemyRect = enemy->getRect();
         if (SDL_HasIntersection(&pacRect, &enemyRect)) {
-            isRunning = false;
-            SDL_Log("Thua m? r?i, t??ng th? nào :))");
+            GameOver = true;
+            return;
         }
     }
 }
@@ -62,6 +74,7 @@ void Game::handleEvents() {
 
 void Game::update() {
     pacman->update();
+    if (GameOver) return;
     for (auto enemy : enemies) {
         enemy->update();
     }
@@ -72,6 +85,9 @@ void Game::update() {
 
     if (Gmap->collectCoinAt(row, col)) {
         score += 10; 
+    }
+    if (Gmap->demcoin() == 0) {
+        BanThang = true;
     }
 }
 void Game::renderScore() {
@@ -93,12 +109,29 @@ void Game::renderScore() {
 
 void Game::render() {
     SDL_RenderClear(renderer);
-    Gmap->drawMap();
-    for (auto enemy : enemies) {
-        enemy->render(renderer);
+    if (GameOver) {
+        SDL_RenderCopy(renderer, hinhGameOver, NULL, NULL);
+    }else {
+        Gmap->drawMap();
+        for (auto enemy : enemies) {
+            enemy->render(renderer);
+        }
+        pacman->render();
+        renderScore();
     }
-    pacman->render();
-    renderScore();
+    if (BanThang) {
+        SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_BLEND);
+        SDL_SetRenderDrawColor(renderer, 0, 0, 0, 150);
+        SDL_Rect overlay = { 0, 0, 640, 640 };
+        SDL_RenderFillRect(renderer, &overlay);
+        SDL_Rect dstRect;
+        dstRect.w = 400;
+        dstRect.h = 200; 
+        dstRect.x = (640 - dstRect.w) / 2;
+        dstRect.y = (640 - dstRect.h) / 2;
+
+        SDL_RenderCopy(renderer, hinhWin, NULL, &dstRect);
+    }
     SDL_RenderPresent(renderer);
 
 }

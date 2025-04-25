@@ -12,6 +12,8 @@ public:
     void drawMap();
 	void initCoins();
     int getTileSize() const;
+    int demcoin() const;
+
 private:
     SDL_Rect src, dest;
     SDL_Texture* wall;

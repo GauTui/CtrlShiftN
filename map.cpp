@@ -38,6 +38,17 @@ Map::Map() {
     initCoins();
 }
 
+int Map::demcoin() const {
+	int count = 0;
+	for (int row = 0; row < 20; ++row) {
+		for (int col = 0; col < 20; ++col) {
+			if (coins[row][col] == 1) {
+				count++;
+			}
+		}
+	}
+	return count;
+}
 void Map::initCoins() {
     for (int row = 0; row < 20; ++row) {
         for (int col = 0; col < 20; ++col) {
