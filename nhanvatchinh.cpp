@@ -26,7 +26,7 @@ Pacman::Pacman(const char* textureFile, int x, int y) : tileX(x), tileY(y) {
     destRect = { x * TILE_SIZE, y * TILE_SIZE, 32, 32 };
     animTexture = IMG_LoadTexture(Game::renderer, "img/animation.png");
     frameWidth = 32;
-    frameHeight = 32;
+    frameHeight = 29;
     currentFrame = 0;
     frameDelay = 10;
     frameTimer = 0;
@@ -38,15 +38,26 @@ void Pacman::handleInput(SDL_Event& event) {
         int nextTileY = tileY;
 
         switch (event.key.keysym.sym) {
-        case SDLK_UP:    nextTileY--; break;
-        case SDLK_DOWN:  nextTileY++; break;
-        case SDLK_LEFT:  nextTileX--; break;
-        case SDLK_RIGHT: nextTileX++; break;
+        case SDLK_UP:
+            nextTileY--;
+            huong = UP;
+            break;
+        case SDLK_DOWN:
+            nextTileY++;
+            huong = DOWN;
+            break;
+        case SDLK_LEFT:
+            nextTileX--;
+            huong = LEFT;
+            break;
+        case SDLK_RIGHT:
+            nextTileX++;
+            huong = RIGHT;
+            break;
         }
 
         int pixelX = nextTileX * TILE_SIZE;
         int pixelY = nextTileY * TILE_SIZE;
-        
 
         if (nextTileX >= 0 && nextTileX < 20 && nextTileY >= 0 && nextTileY < 20) {
             if (dichuyen(pixelX, pixelY, 32, 32)) {
@@ -57,6 +68,7 @@ void Pacman::handleInput(SDL_Event& event) {
     }
 }
 
+
 void Pacman::update() {
     destRect.x = tileX * TILE_SIZE;
     destRect.y = tileY * TILE_SIZE;
@@ -65,14 +77,27 @@ void Pacman::update() {
     }
     frameTimer++;
     if (frameTimer >= frameDelay) {
-        currentFrame = (currentFrame + 1) % 8;
+        currentFrame = (currentFrame + 1) % 4;
         frameTimer = 0;
     }
 }
 
 void Pacman::render() {
    // SDL_RenderCopy(Game::renderer, texture, &srcRect, &destRect);
-    SDL_Rect srcRect = { currentFrame * frameWidth, 0, frameWidth, frameHeight };
+    SDL_Rect srcRect = {
+    (currentFrame % 2) * frameWidth,
+    (currentFrame / 2) * frameHeight,
+    frameWidth,
+    frameHeight
+    };
     SDL_Rect destRect = getRect();
-    SDL_RenderCopy(Game::renderer, animTexture, &srcRect, &destRect);
+    double angle = 0.0;
+    switch (huong) {
+    case UP:    angle = 270.0; break;
+    case DOWN:  angle = 90.0;  break;
+    case LEFT:  angle = 180.0; break;
+    case RIGHT: angle = 0.0;   break;
+    }
+
+    SDL_RenderCopyEx(Game::renderer, animTexture, &srcRect, &destRect, angle, NULL, SDL_FLIP_NONE);
 }

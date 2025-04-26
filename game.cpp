@@ -49,9 +49,9 @@ void Game::init(const char* title, int xpos, int ypos, int width, int height, bo
     Gmap = new Map();
     Gmap->initCoins();
 
-    enemies.push_back(new GiangVien("img/giangvien.jpg", 100, 100));
-    enemies.push_back(new GiangVien("img/giangvien.jpg", 300, 200));
-    enemies.push_back(new GiangVien("img/giangvien.jpg", 500, 300));
+    enemies.push_back(new GiangVien("img/giangvien.jpg", 100, 96));
+    enemies.push_back(new GiangVien("img/giangvien.jpg", 300, 224));
+    enemies.push_back(new GiangVien("img/giangvien.jpg", 500, 544));
 }
 void Game::kiemtravacham() {
     SDL_Rect pacRect = pacman->getRect();
@@ -109,16 +109,12 @@ void Game::renderScore() {
 
 void Game::render() {
     SDL_RenderClear(renderer);
-    if (GameOver) {
-        SDL_RenderCopy(renderer, hinhGameOver, NULL, NULL);
-    }else {
-        Gmap->drawMap();
-        for (auto enemy : enemies) {
+    Gmap->drawMap();
+    for (auto enemy : enemies) {
             enemy->render(renderer);
-        }
-        pacman->render();
-        renderScore();
     }
+    pacman->render();
+    renderScore();
     if (BanThang) {
         SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_BLEND);
         SDL_SetRenderDrawColor(renderer, 0, 0, 0, 150);
@@ -131,6 +127,19 @@ void Game::render() {
         dstRect.y = (640 - dstRect.h) / 2;
 
         SDL_RenderCopy(renderer, hinhWin, NULL, &dstRect);
+    }
+    if (GameOver) {
+        SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_BLEND);
+        SDL_SetRenderDrawColor(renderer, 0, 0, 0, 150);
+        SDL_Rect overlay = { 0, 0, 640, 640 };
+        SDL_RenderFillRect(renderer, &overlay);
+        SDL_Rect dstRect;
+        dstRect.w = 400;
+        dstRect.h = 200;
+        dstRect.x = (640 - dstRect.w) / 2;
+        dstRect.y = (640 - dstRect.h) / 2;
+
+        SDL_RenderCopy(renderer, hinhGameOver, NULL, &dstRect);
     }
     SDL_RenderPresent(renderer);
 

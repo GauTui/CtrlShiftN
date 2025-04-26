@@ -30,7 +30,7 @@ int level1[20][20] = {
 };
 
 Map::Map() {
-    wall = TextureManager::LoadTexture("img/sangphai.png");
+    wall = TextureManager::LoadTexture("img/wall.png");
     coinTexture = TextureManager::LoadTexture("img/coin.png");
     src = { 0, 0, TILE_SIZE, TILE_SIZE };
     dest = { 0, 0, TILE_SIZE, TILE_SIZE };
