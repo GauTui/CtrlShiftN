@@ -2,7 +2,7 @@
 #include "TextM.h"
 #include "nhanvatchinh.h"
 #include "map.h"
-#include "giangvien.h"
+#include "honma.h"
 
 int score;
 Map* Gmap = nullptr;
@@ -73,7 +73,13 @@ void Game::handleEvents() {
 }
 
 void Game::update() {
+
     pacman->update();
+    if (GameOver || BanThang) {
+        thoatgame();
+        return;
+    }
+
     if (GameOver) return;
     for (auto enemy : enemies) {
         enemy->update();
@@ -143,6 +149,22 @@ void Game::render() {
     }
     SDL_RenderPresent(renderer);
 
+}
+void Game::thoatgame() {
+    SDL_Event e;
+    while (true) {
+        while (SDL_PollEvent(&e)) {
+            if (e.type == SDL_QUIT) {
+                isRunning = false;
+                return;
+            }
+            if (e.type == SDL_MOUSEBUTTONDOWN || e.type == SDL_KEYDOWN) {
+                isRunning = false;
+                return;
+            }
+        }
+        SDL_Delay(10);
+    }
 }
 
 void Game::clean() {

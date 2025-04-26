@@ -1,7 +1,7 @@
 #pragma once
 ///nhanvatchinh.h
 #include <SDL.h>
-#include"giangvien.h"
+#include"honma.h"
 enum huongdichuyen { UP, DOWN, LEFT, RIGHT };
 class Pacman {
 public:

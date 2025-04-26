@@ -30,7 +30,7 @@
     <ClCompile Include="nhanvatchinh.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="giangvien.cpp">
+    <ClCompile Include="honma.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -47,7 +47,7 @@
     <ClInclude Include="nhanvatchinh.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="giangvien.h">
+    <ClInclude Include="honma.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

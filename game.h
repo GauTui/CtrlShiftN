@@ -6,7 +6,7 @@
 #include "Map.h"
 #include <sstream>
 #include <string>
-#include"giangvien.h"
+#include"honma.h"
 #include<vector.>
 
 extern int score;
@@ -21,7 +21,7 @@ public:
     void render();
     void clean();
     bool running() { return isRunning; }
-
+    void thoatgame();
     static SDL_Renderer* renderer;
 
 private:
