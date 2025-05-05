@@ -11,13 +11,16 @@ extern int score;
 SDL_Rect Pacman::getRect() const {
     return destRect;
 }
-bool dichuyen(int tileX, int tileY, int tileW, int tileH) {
-    return !(
-        Gmap->isWall(tileX, tileY) ||
-        Gmap->isWall(tileX + tileW - 1, tileY) ||
-        Gmap->isWall(tileX, tileY + tileH - 1) ||
-        Gmap->isWall(tileX + tileW - 1, tileY + tileH - 1)
-        );
+bool dichuyen(int pixelX, int pixelY, int tileW, int tileH) {
+    int leftTile = pixelX / TILE_SIZE;
+    int rightTile = (pixelX + tileW - 1) / TILE_SIZE;
+    int topTile = pixelY / TILE_SIZE;
+    int bottomTile = (pixelY + tileH - 1) / TILE_SIZE;
+
+    return !(Gmap->isWall(leftTile, topTile) ||
+        Gmap->isWall(rightTile, topTile) ||
+        Gmap->isWall(leftTile, bottomTile) ||
+        Gmap->isWall(rightTile, bottomTile));
 }
 
 Pacman::Pacman(const char* textureFile, int x, int y) : tileX(x), tileY(y) {
@@ -38,22 +41,10 @@ void Pacman::handleInput(SDL_Event& event) {
         int nextTileY = tileY;
 
         switch (event.key.keysym.sym) {
-        case SDLK_UP:
-            nextTileY--;
-            huong = UP;
-            break;
-        case SDLK_DOWN:
-            nextTileY++;
-            huong = DOWN;
-            break;
-        case SDLK_LEFT:
-            nextTileX--;
-            huong = LEFT;
-            break;
-        case SDLK_RIGHT:
-            nextTileX++;
-            huong = RIGHT;
-            break;
+        case SDLK_UP:    nextTileY--; huong = UP;    break;
+        case SDLK_DOWN:  nextTileY++; huong = DOWN;  break;
+        case SDLK_LEFT:  nextTileX--; huong = LEFT;  break;
+        case SDLK_RIGHT: nextTileX++; huong = RIGHT; break;
         }
 
         int pixelX = nextTileX * TILE_SIZE;
@@ -67,6 +58,7 @@ void Pacman::handleInput(SDL_Event& event) {
         }
     }
 }
+
 
 
 void Pacman::update() {
