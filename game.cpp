@@ -42,8 +42,14 @@ void Game::init(const char* title, int xpos, int ypos, int width, int height, bo
     }
     hinhGameOver = IMG_LoadTexture(renderer, "img/gameover.png");
     hinhWin = IMG_LoadTexture(renderer, "img/win.png");
+    hinhNextLevel = IMG_LoadTexture(renderer, "img/sangman.png");
     if (!hinhGameOver) {
         SDL_Log("Failed to load game over image: %s", IMG_GetError());
+        isRunning = false;
+        return;
+    }
+    if (!hinhNextLevel) {
+        SDL_Log("Failed to load next level image: %s", IMG_GetError());
         isRunning = false;
         return;
     }
@@ -61,13 +67,20 @@ void Game::loadLevel(int level) {
     pacman = new Pacman("img/bg21.jpg", 1, 1);
 
     if (level == 1) {
-        enemies.push_back(new GiangVien("img/giangvien.jpg", 100, 96));
-        enemies.push_back(new GiangVien("img/giangvien.jpg", 300, 224));
+        
+        enemies.push_back(new GiangVien("img/giangvien.jpg", 150, 96));
+        enemies.push_back(new GiangVien("img/giangvien.jpg", 350, 544));
+        enemies.push_back(new GiangVien("img/giangvien.jpg", 200, 288));
+        enemies.push_back(new GiangVien("img/giangvien.jpg", 250, 480));
+        enemies.push_back(new GiangVien("img/giangvien.jpg", 100, 32));
     }
     else if (level == 2) {
-        enemies.push_back(new GiangVien("img/giangvien.jpg", 200, 128));
-        enemies.push_back(new GiangVien("img/giangvien.jpg", 400, 256));
-        enemies.push_back(new GiangVien("img/giangvien.jpg", 500, 320));
+        enemies.push_back(new GiangVien("img/giangvien.jpg", 200, 96));
+        enemies.push_back(new GiangVien("img/giangvien.jpg", 250, 224));
+        enemies.push_back(new GiangVien("img/giangvien.jpg", 300, 288));
+        enemies.push_back(new GiangVien("img/giangvien.jpg", 360, 416));
+        enemies.push_back(new GiangVien("img/giangvien.jpg", 412, 480));
+        enemies.push_back(new GiangVien("img/giangvien.jpg", 125, 544));
     }
     else {
         isRunning = false;
@@ -114,6 +127,7 @@ void Game::update() {
     }
     if (Gmap->demcoin() == 0) {
         ttg = thang;
+		BanThang = true;
     }
 }
 
@@ -147,13 +161,14 @@ void Game::render() {
         SDL_SetRenderDrawColor(renderer, 0, 0, 0, 150);
         SDL_Rect overlay = { 0, 0, 640, 640 };
         SDL_RenderFillRect(renderer, &overlay);
-        SDL_Rect dstRect;
-        dstRect.w = 400;
-        dstRect.h = 200; 
-        dstRect.x = (640 - dstRect.w) / 2;
-        dstRect.y = (640 - dstRect.h) / 2;
+        SDL_Rect dstRect = { (640 - 400) / 2, (640 - 200) / 2, 400, 200 };
 
-        SDL_RenderCopy(renderer, hinhWin, NULL, &dstRect);
+        if (currentlv == 1) {
+            SDL_RenderCopy(renderer, hinhNextLevel, NULL, &dstRect);
+        }
+        else if (currentlv == 2) {
+            SDL_RenderCopy(renderer, hinhWin, NULL, &dstRect);
+        }
     }
     if (GameOver) {
         SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_BLEND);
@@ -181,10 +196,21 @@ void Game::thoatgame() {
             }
             if (e.type == SDL_MOUSEBUTTONDOWN || e.type == SDL_KEYDOWN) {
                 if (ttg == thang) {
-                    currentlv++;
-                    loadLevel(currentlv);
-                    ttg = tt;
-                    return;
+                    if (currentlv == 1) {
+                        SDL_RenderClear(renderer);
+                        SDL_Rect dstRect = { (640 - 400) / 2, (640 - 200) / 2, 400, 200 };
+                        SDL_RenderCopy(renderer, hinhNextLevel, NULL, &dstRect);
+                        SDL_RenderPresent(renderer);
+                        currentlv++;
+                        loadLevel(currentlv);
+                        ttg = tt;
+                        BanThang = false;
+                        return;
+                    }
+                    else if (currentlv == 2) {
+                        isRunning = false;
+                        return;
+                    }
                 }
                 else if(ttg == thua) {
                     isRunning = false;
@@ -195,7 +221,7 @@ void Game::thoatgame() {
         SDL_Delay(10);
     }
 }
-
+//huhu moi tay qua
 void Game::clean() {
     if (font) {
         TTF_CloseFont(font);

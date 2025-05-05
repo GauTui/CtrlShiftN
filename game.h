@@ -40,6 +40,7 @@ private:
     SDL_Window* window;
     SDL_Texture* hinhGameOver = nullptr;
     SDL_Texture* hinhWin = nullptr;
+	SDL_Texture* hinhNextLevel = nullptr;
     TTF_Font* font;
     Pacman* pacman;
     void renderScore();
