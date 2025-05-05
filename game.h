@@ -9,6 +9,14 @@
 #include"honma.h"
 #include<vector.>
 
+enum tinhtranggame {
+    tt,
+    thang,
+    thua,
+    chosangman
+};
+extern tinhtranggame ttg;
+extern int currentlv;
 extern int score;
 class Game {
 public:
@@ -22,6 +30,7 @@ public:
     void clean();
     bool running() { return isRunning; }
     void thoatgame();
+	void loadLevel(int level);
     static SDL_Renderer* renderer;
 
 private:

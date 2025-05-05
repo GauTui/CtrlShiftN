@@ -4,7 +4,6 @@
 #include <cstdio>
 //map.cpp
 
-
 const int TILE_SIZE = 32;
 int level1[20][20] = {
     {1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1},
@@ -28,16 +27,48 @@ int level1[20][20] = {
     {1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1},
     {1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1}
 };
+int level2[20][20] = {
+    {1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1},
+    {1,0,0,0,0,1,0,0,0,1,0,0,0,1,0,0,0,0,0,1},
+    {1,0,1,1,0,1,0,1,0,1,0,1,0,1,0,1,1,1,0,1},
+    {1,0,0,0,0,0,0,1,0,0,0,1,0,0,0,0,0,1,0,1},
+    {1,1,1,1,0,1,0,1,1,1,0,1,1,1,0,1,0,1,0,1},
+    {1,0,0,1,0,1,0,0,0,1,0,0,0,1,0,1,0,1,0,1},
+    {1,0,1,1,0,1,1,1,0,1,1,1,0,1,0,1,0,1,0,1},
+    {1,0,0,0,0,0,0,1,0,0,0,0,0,1,0,0,0,1,0,1},
+    {1,1,1,1,1,1,0,1,1,1,1,1,0,1,1,1,0,1,1,1},
+    {1,0,0,0,0,1,0,0,0,0,0,1,0,0,0,1,0,0,0,1},
+    {1,0,1,1,0,1,1,1,1,1,0,1,1,1,0,1,1,1,0,1},
+    {1,0,0,1,0,0,0,0,0,1,0,0,0,1,0,0,0,1,0,1},
+    {1,1,0,1,1,1,0,1,0,1,0,1,0,1,1,1,0,1,1,1},
+    {1,0,0,0,0,1,0,1,0,0,0,1,0,0,0,1,0,0,0,1},
+    {1,0,1,1,0,1,0,1,1,1,1,1,1,1,0,1,0,1,0,1},
+    {1,0,1,0,0,1,0,0,0,1,0,0,0,1,0,1,0,1,0,1},
+    {1,0,1,0,1,1,1,1,0,1,0,1,1,1,0,1,0,1,0,1},
+    {1,0,0,0,0,0,0,1,0,0,0,0,0,1,0,0,0,1,0,1},
+    {1,0,1,1,1,1,0,1,1,1,1,1,0,1,1,1,0,1,0,1},
+    {1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1}
+};
 
 Map::Map() {
-    wall = TextureManager::LoadTexture("img/wall.png");
-    coinTexture = TextureManager::LoadTexture("img/coin.png");
+    wall = TextureManager::LoadTexture("map/wall.png");
+    coinTexture = TextureManager::LoadTexture("map/coin.png");
     src = { 0, 0, TILE_SIZE, TILE_SIZE };
     dest = { 0, 0, TILE_SIZE, TILE_SIZE };
 
     initCoins();
 }
+void Map::loadLevel(int level) {
+    const int (*selectedMap)[20] = nullptr;
 
+    if (level == 1) selectedMap = level1;
+    else if (level == 2) selectedMap = level2;
+    else return;
+
+    for (int i = 0; i < 20; i++)
+        for (int j = 0; j < 20; j++)
+            map[i][j] = selectedMap[i][j];
+}
 int Map::demcoin() const {
 	int count = 0;
 	for (int row = 0; row < 20; ++row) {
@@ -53,28 +84,20 @@ void Map::initCoins() {
     for (int row = 0; row < 20; ++row) {
         for (int col = 0; col < 20; ++col) {
           
-            coins[row][col] = (level1[row][col] == 0) ? 1 : 0;
+            coins[row][col] = (map[row][col] == 0) ? 1 : 0;
         }
     }
 }
 
-
-
-bool isWall(int x, int y) {
-    int col = x / TILE_SIZE;
-    int row = y / TILE_SIZE;
-
-    if (row < 0 || row >= 20 || col < 0 || col >= 20) {
-        return true;
-    }
-
-    return level1[row][col] == 1; 
+bool Map::isWall(int x, int y) const {
+    if (x < 0 || x >= 20 || y < 0 || y >= 20) return true;
+    return map[y][x] == 1;
 }
 
 void Map::drawMap() {
     for (int row = 0; row < 20; row++) {
         for (int col = 0; col < 20; col++) {
-            int tileType = level1[row][col];
+            int tileType = map[row][col];
             if (tileType == 1) {  
                 dest.x = col * TILE_SIZE;
                 dest.y = row * TILE_SIZE;

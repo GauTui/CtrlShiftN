@@ -3,8 +3,6 @@
 
 //map.h
 
-bool isWall(int x, int y);
-
 class Map {
 public:
     Map();
@@ -13,13 +11,16 @@ public:
 	void initCoins();
     int getTileSize() const;
     int demcoin() const;
+	void loadLevel(int level);
+    bool isWall(int x, int y) const;
 
 private:
     SDL_Rect src, dest;
     SDL_Texture* wall;
     SDL_Texture* coinTexture;
     static const int TILE_SIZE = 32;
+    int map[20][20];
     int coins[20][20];
-    friend bool isWall(int x, int y);
+    
 
 };

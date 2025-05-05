@@ -5,11 +5,14 @@
 #include "honma.h"
 
 int score;
+int currentlv = 1;
+tinhtranggame ttg = tt;
+
 Map* Gmap = nullptr;
 SDL_Renderer* Game::renderer = nullptr;
 Game::Game() : isRunning(false), window(nullptr), pacman(nullptr),font(nullptr) {}
 Game::~Game() {}
-
+/*
 void Game::init(const char* title, int xpos, int ypos, int width, int height, bool fullscreen) {
     int flags = fullscreen ? SDL_WINDOW_FULLSCREEN : 0;
     if (SDL_Init(SDL_INIT_VIDEO) == 0) {
@@ -52,12 +55,54 @@ void Game::init(const char* title, int xpos, int ypos, int width, int height, bo
     enemies.push_back(new GiangVien("img/giangvien.jpg", 100, 96));
     enemies.push_back(new GiangVien("img/giangvien.jpg", 300, 224));
     enemies.push_back(new GiangVien("img/giangvien.jpg", 500, 544));
+    enemies.push_back(new GiangVien("img/giangvien.jpg", 500, 320));
+}
+*/
+
+void Game::init(const char* title, int xpos, int ypos, int width, int height, bool fullscreen) {
+    int flags = fullscreen ? SDL_WINDOW_FULLSCREEN : 0;
+    if (SDL_Init(SDL_INIT_VIDEO) == 0) {
+        window = SDL_CreateWindow(title, xpos, ypos, width, height, flags);
+        renderer = SDL_CreateRenderer(window, -1, 0);
+        if (renderer) {
+            SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
+        }
+        if (TTF_Init() == -1) {
+            SDL_Log("TTF_Init failed: %s", TTF_GetError());
+            isRunning = false;
+            return;
+        }
+
+        font = TTF_OpenFont("ttf//font.ttf", 24);
+        if (!font) {
+            SDL_Log("Failed to load font: %s", TTF_GetError());
+            isRunning = false;
+            return;
+        }
+        isRunning = true;
+    }
+    if (IMG_Init(IMG_INIT_PNG) == 0) {
+        SDL_Log("IMG_Init failed: %s", IMG_GetError());
+        isRunning = false;
+        return;
+    }
+    hinhGameOver = IMG_LoadTexture(renderer, "img/gameover.png");
+    hinhWin = IMG_LoadTexture(renderer, "img/win.png");
+    if (!hinhGameOver) {
+        SDL_Log("Failed to load game over image: %s", IMG_GetError());
+        isRunning = false;
+        return;
+    }
+    Gmap = new Map();
+    Gmap->initCoins();
+    loadLevel(currentlv);
 }
 void Game::kiemtravacham() {
     SDL_Rect pacRect = pacman->getRect();
     for (auto enemy : enemies) {
         SDL_Rect enemyRect = enemy->getRect();
         if (SDL_HasIntersection(&pacRect, &enemyRect)) {
+			ttg = thua;
             GameOver = true;
             return;
         }
@@ -75,7 +120,7 @@ void Game::handleEvents() {
 void Game::update() {
 
     pacman->update();
-    if (GameOver || BanThang) {
+    if (ttg == thua || ttg == thang) {
         thoatgame();
         return;
     }
@@ -93,7 +138,7 @@ void Game::update() {
         score += 10; 
     }
     if (Gmap->demcoin() == 0) {
-        BanThang = true;
+		ttg = thang;
     }
 }
 void Game::renderScore() {
@@ -159,13 +204,44 @@ void Game::thoatgame() {
                 return;
             }
             if (e.type == SDL_MOUSEBUTTONDOWN || e.type == SDL_KEYDOWN) {
-                isRunning = false;
-                return;
+                if (ttg == thang) {
+                    currentlv++;
+                    loadLevel(currentlv);
+                    ttg = tt;
+                    return;
+                }
+                else if(ttg == thua) {
+                    isRunning = false;
+                    return;
+                }
             }
         }
         SDL_Delay(10);
     }
 }
+void Game::loadLevel(int level) {
+    score = 0;
+    delete pacman;
+    for (auto enemy : enemies) delete enemy;
+    enemies.clear();
+    Gmap->loadLevel(level);
+    Gmap->initCoins();
+    pacman = new Pacman("img/bg21.jpg", 1, 1);
+
+    if (level == 1) {
+        enemies.push_back(new GiangVien("img/giangvien.jpg", 100, 96));
+        enemies.push_back(new GiangVien("img/giangvien.jpg", 300, 224));
+    }
+    else if (level == 2) {
+        enemies.push_back(new GiangVien("img/giangvien.jpg", 200, 128));
+        enemies.push_back(new GiangVien("img/giangvien.jpg", 400, 256));
+        enemies.push_back(new GiangVien("img/giangvien.jpg", 500, 320));
+    }
+    else {
+        isRunning = false;
+    }
+}
+
 
 void Game::clean() {
     if (font) {

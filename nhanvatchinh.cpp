@@ -13,10 +13,10 @@ SDL_Rect Pacman::getRect() const {
 }
 bool dichuyen(int tileX, int tileY, int tileW, int tileH) {
     return !(
-        isWall(tileX, tileY) ||
-        isWall(tileX + tileW - 1, tileY) ||
-        isWall(tileX, tileY + tileH - 1) ||
-        isWall(tileX + tileW - 1, tileY + tileH - 1)
+        Gmap->isWall(tileX, tileY) ||
+        Gmap->isWall(tileX + tileW - 1, tileY) ||
+        Gmap->isWall(tileX, tileY + tileH - 1) ||
+        Gmap->isWall(tileX + tileW - 1, tileY + tileH - 1)
         );
 }
 
