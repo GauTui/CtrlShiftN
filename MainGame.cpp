@@ -11,20 +11,32 @@ int main(int argc, char* argv[]) {
 
     game = new Game();
     game->init("Lai Tuan Duc-24021414--UETman", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, 640, 640, false);
-
     while (game->running()) {
-        frameStart = SDL_GetTicks();
+        if (game->ttg == chosangman) {
+            game->showMenu();
+        }
 
-        game->handleEvents();
-        game->update();
-        game->render();
+        if (game->ttg == tt) {
+            frameStart = SDL_GetTicks();
 
-        frameTime = SDL_GetTicks() - frameStart;
-        if (frameDelay > frameTime) {
-            SDL_Delay(frameDelay - frameTime);
+            game->handleEvents();
+            game->update();
+            game->render();
+
+            frameTime = SDL_GetTicks() - frameStart;
+            if (frameDelay > frameTime) {
+                SDL_Delay(frameDelay - frameTime);
+            }
+        }
+
+        if (game->ttg == thang) {
+            SDL_Delay(1000);
+            game->ttg = chosangman;
+        }
+        if (game->ttg == thua) {
+            break;
         }
     }
-
     game->clean();
     return 0;
 }

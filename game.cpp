@@ -1,4 +1,4 @@
-#include "Game.h"
+﻿#include "Game.h"
 #include "TextM.h"
 #include "nhanvatchinh.h"
 #include "map.h"
@@ -146,6 +146,55 @@ void Game::renderScore() {
 
     SDL_FreeSurface(textSurface);
     SDL_DestroyTexture(textTexture);
+}
+void Game::showMenu() {
+    SDL_Event e;
+    bool inMenu = true;
+
+    SDL_Surface* bgSurface = IMG_Load("img/background.jpg");
+    SDL_Texture* bgTexture = SDL_CreateTextureFromSurface(renderer, bgSurface);
+    SDL_FreeSurface(bgSurface);
+    SDL_Surface* startSurface = IMG_Load("img/start.jpg");
+    SDL_Texture* startTexture = SDL_CreateTextureFromSurface(renderer, startSurface);
+    SDL_FreeSurface(startSurface);
+    SDL_Rect startRect = { 200, 300, 240, 80 };
+    SDL_Surface* quitSurface = IMG_Load("img/exit.jpg");
+    SDL_Texture* quitTexture = SDL_CreateTextureFromSurface(renderer, quitSurface);
+    SDL_FreeSurface(quitSurface);
+    SDL_Rect quitRect = { 200, 420, 240, 80 };
+
+    while (inMenu) {
+        while (SDL_PollEvent(&e)) {
+            if (e.type == SDL_QUIT) {
+                ttg = thua;
+                inMenu = false;
+            }
+            else if (e.type == SDL_MOUSEBUTTONDOWN) {
+                int x = e.button.x;
+                int y = e.button.y;
+
+                if (x >= startRect.x && x <= startRect.x + startRect.w &&
+                    y >= startRect.y && y <= startRect.y + startRect.h) {
+                    ttg = tt;
+                    inMenu = false;
+                }
+
+                if (x >= quitRect.x && x <= quitRect.x + quitRect.w &&
+                    y >= quitRect.y && y <= quitRect.y + quitRect.h) {
+                    ttg = thua;
+                    inMenu = false;
+                }
+            }
+        }
+        SDL_RenderClear(renderer);
+        SDL_RenderCopy(renderer, bgTexture, NULL, NULL);               
+        SDL_RenderCopy(renderer, startTexture, NULL, &startRect);    
+        SDL_RenderCopy(renderer, quitTexture, NULL, &quitRect);       
+        SDL_RenderPresent(renderer);
+    }
+    SDL_DestroyTexture(bgTexture);
+    SDL_DestroyTexture(startTexture);
+    SDL_DestroyTexture(quitTexture);
 }
 
 void Game::render() {

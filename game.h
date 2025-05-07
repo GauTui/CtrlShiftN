@@ -18,6 +18,12 @@ enum tinhtranggame {
 extern tinhtranggame ttg;
 extern int currentlv;
 extern int score;
+
+struct Button {
+    SDL_Rect rect;
+    SDL_Texture* texture;
+};
+
 class Game {
 public:
     Game();
@@ -31,7 +37,10 @@ public:
     bool running() { return isRunning; }
     void thoatgame();
 	void loadLevel(int level);
+    
     static SDL_Renderer* renderer;
+    tinhtranggame ttg = chosangman;
+    void showMenu();
 
 private:
     bool isRunning;
