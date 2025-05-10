@@ -67,12 +67,13 @@ void Game::loadLevel(int level) {
     pacman = new Pacman("img/bg21.jpg", 1, 1);
 
     if (level == 1) {
-        
+        /*
         enemies.push_back(new GiangVien("img/giangvien.jpg", 150, 96));
         enemies.push_back(new GiangVien("img/giangvien.jpg", 350, 544));
         enemies.push_back(new GiangVien("img/giangvien.jpg", 200, 288));
         enemies.push_back(new GiangVien("img/giangvien.jpg", 250, 480));
         enemies.push_back(new GiangVien("img/giangvien.jpg", 100, 32));
+        */
     }
     else if (level == 2) {
         enemies.push_back(new GiangVien("img/giangvien.jpg", 200, 96));
@@ -100,36 +101,55 @@ void Game::kiemtravacham() {
 void Game::handleEvents() {
     SDL_Event event;
     SDL_PollEvent(&event);
+
     if (event.type == SDL_QUIT) {
         isRunning = false;
+        return;
+    }
+    if (ttg == thua || ttg == thang) {
+        if (event.type == SDL_MOUSEBUTTONDOWN || event.type == SDL_KEYDOWN) {
+            if (ttg == thang && currentlv == 1) {
+                currentlv++;
+                loadLevel(currentlv);
+                ttg = tt;
+                BanThang = false;
+            }
+            if (ttg == thua) {
+                ttg = chosangman;
+            }
+        }
+        return;
     }
     pacman->handleInput(event);
 }
 
+
+
 void Game::update() {
-    pacman->update();
-    if (ttg == thua || ttg == thang) {
-        thoatgame();
+    if (ttg == thua || ttg == thang || GameOver) {
         return;
     }
 
-    if (GameOver) return;
+    pacman->update();
     for (auto enemy : enemies) {
         enemy->update();
     }
 
     kiemtravacham();
+
     int row = pacman->getY() / Gmap->getTileSize();
     int col = pacman->getX() / Gmap->getTileSize();
 
     if (Gmap->collectCoinAt(row, col)) {
         score += 10;
     }
+
     if (Gmap->demcoin() == 0) {
         ttg = thang;
-		BanThang = true;
+        BanThang = true;
     }
 }
+
 
 void Game::renderScore() {
     SDL_Color textColor = { 255, 255, 255 };
@@ -154,11 +174,11 @@ void Game::showMenu() {
     SDL_Surface* bgSurface = IMG_Load("img/background.jpg");
     SDL_Texture* bgTexture = SDL_CreateTextureFromSurface(renderer, bgSurface);
     SDL_FreeSurface(bgSurface);
-    SDL_Surface* startSurface = IMG_Load("img/start.jpg");
+    SDL_Surface* startSurface = IMG_Load("img/start.png");
     SDL_Texture* startTexture = SDL_CreateTextureFromSurface(renderer, startSurface);
     SDL_FreeSurface(startSurface);
     SDL_Rect startRect = { 200, 300, 240, 80 };
-    SDL_Surface* quitSurface = IMG_Load("img/exit.jpg");
+    SDL_Surface* quitSurface = IMG_Load("img/exit.png");
     SDL_Texture* quitTexture = SDL_CreateTextureFromSurface(renderer, quitSurface);
     SDL_FreeSurface(quitSurface);
     SDL_Rect quitRect = { 200, 420, 240, 80 };
@@ -196,44 +216,59 @@ void Game::showMenu() {
     SDL_DestroyTexture(startTexture);
     SDL_DestroyTexture(quitTexture);
 }
-
 void Game::render() {
     SDL_RenderClear(renderer);
     Gmap->drawMap();
     for (auto enemy : enemies) {
-            enemy->render(renderer);
+        enemy->render(renderer);
     }
     pacman->render();
     renderScore();
+    if (GameOver) {
+        SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_BLEND);
+        SDL_SetRenderDrawColor(renderer, 0, 0, 0, 150);
+        SDL_Rect overlay = { 0, 0, 640, 640 };
+        SDL_RenderFillRect(renderer, &overlay);
+        SDL_Rect dstRect = { (640 - 400) / 2, (640 - 200) / 2, 400, 200 };
+        SDL_RenderCopy(renderer, hinhGameOver, NULL, &dstRect);
+        SDL_Rect quitRect = { 200, 450, 240, 80 };
+        SDL_Surface* quitSurface = IMG_Load("img/exit.png");
+        SDL_Texture* quitTexture = SDL_CreateTextureFromSurface(renderer, quitSurface);
+        SDL_FreeSurface(quitSurface);
+        SDL_RenderCopy(renderer, quitTexture, NULL, &quitRect);
+        SDL_DestroyTexture(quitTexture);
+    }
     if (BanThang) {
         SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_BLEND);
         SDL_SetRenderDrawColor(renderer, 0, 0, 0, 150);
         SDL_Rect overlay = { 0, 0, 640, 640 };
         SDL_RenderFillRect(renderer, &overlay);
         SDL_Rect dstRect = { (640 - 400) / 2, (640 - 200) / 2, 400, 200 };
-
         if (currentlv == 1) {
             SDL_RenderCopy(renderer, hinhNextLevel, NULL, &dstRect);
         }
         else if (currentlv == 2) {
             SDL_RenderCopy(renderer, hinhWin, NULL, &dstRect);
         }
-    }
-    if (GameOver) {
-        SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_BLEND);
-        SDL_SetRenderDrawColor(renderer, 0, 0, 0, 150);
-        SDL_Rect overlay = { 0, 0, 640, 640 };
-        SDL_RenderFillRect(renderer, &overlay);
-        SDL_Rect dstRect;
-        dstRect.w = 400;
-        dstRect.h = 200;
-        dstRect.x = (640 - dstRect.w) / 2;
-        dstRect.y = (640 - dstRect.h) / 2;
+        SDL_Rect continueRect = { 200, 350, 240, 80 };
+        SDL_Rect quitRect = { 200, 450, 240, 80 };
 
-        SDL_RenderCopy(renderer, hinhGameOver, NULL, &dstRect);
+        SDL_Surface* continueSurface = IMG_Load("img/continue.png");
+        SDL_Texture* continueTexture = SDL_CreateTextureFromSurface(renderer, continueSurface);
+        SDL_FreeSurface(continueSurface);
+
+        SDL_Surface* quitSurface = IMG_Load("img/exit.png");
+        SDL_Texture* quitTexture = SDL_CreateTextureFromSurface(renderer, quitSurface);
+        SDL_FreeSurface(quitSurface);
+
+        SDL_RenderCopy(renderer, continueTexture, NULL, &continueRect);
+        SDL_RenderCopy(renderer, quitTexture, NULL, &quitRect);
+
+        SDL_DestroyTexture(continueTexture);
+        SDL_DestroyTexture(quitTexture);
     }
+
     SDL_RenderPresent(renderer);
-
 }
 void Game::thoatgame() {
     SDL_Event e;
@@ -244,33 +279,44 @@ void Game::thoatgame() {
                 return;
             }
             if (e.type == SDL_MOUSEBUTTONDOWN || e.type == SDL_KEYDOWN) {
-                if (ttg == thang) {
-                    if (currentlv == 1) {
-                        SDL_RenderClear(renderer);
-                        SDL_Rect dstRect = { (640 - 400) / 2, (640 - 200) / 2, 400, 200 };
-                        SDL_RenderCopy(renderer, hinhNextLevel, NULL, &dstRect);
-                        SDL_RenderPresent(renderer);
-                        currentlv++;
-                        loadLevel(currentlv);
-                        ttg = tt;
-                        BanThang = false;
-                        return;
-                    }
-                    else if (currentlv == 2) {
+                int x = e.button.x;
+                int y = e.button.y;
+                if (GameOver) {
+                    SDL_Rect quitRect = { 200, 450, 240, 80 };
+                    if (x >= quitRect.x && x <= quitRect.x + quitRect.w &&
+                        y >= quitRect.y && y <= quitRect.y + quitRect.h) {
                         isRunning = false;
                         return;
                     }
                 }
-                else if(ttg == thua) {
-                    isRunning = false;
-                    return;
+                if (BanThang) {
+                    SDL_Rect continueRect = { 200, 350, 240, 80 };
+                    if (x >= continueRect.x && x <= continueRect.x + continueRect.w &&
+                        y >= continueRect.y && y <= continueRect.y + continueRect.h) {
+                        if (currentlv == 1) {
+                            currentlv++;
+                            loadLevel(currentlv);
+                            ttg = tt;
+                            BanThang = false;
+                            return;
+                        }
+                        else if (currentlv == 2) {
+                            isRunning = false;
+                            return;
+                        }
+                    }
+                    SDL_Rect quitRect = { 200, 450, 240, 80 };
+                    if (x >= quitRect.x && x <= quitRect.x + quitRect.w &&
+                        y >= quitRect.y && y <= quitRect.y + quitRect.h) {
+                        ttg = chosangman;
+                        return;
+                    }
                 }
             }
         }
         SDL_Delay(10);
     }
 }
-//huhu moi tay qua
 void Game::clean() {
     if (font) {
         TTF_CloseFont(font);

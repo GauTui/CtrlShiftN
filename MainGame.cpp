@@ -30,11 +30,11 @@ int main(int argc, char* argv[]) {
         }
 
         if (game->ttg == thang) {
-            SDL_Delay(1000);
+            SDL_Delay(10000);
             game->ttg = chosangman;
         }
         if (game->ttg == thua) {
-            break;
+            game->thoatgame();
         }
     }
     game->clean();
