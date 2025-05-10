@@ -28,12 +28,7 @@ int main(int argc, char* argv[]) {
                 SDL_Delay(frameDelay - frameTime);
             }
         }
-
-        if (game->ttg == thang) {
-            SDL_Delay(10000);
-            game->ttg = chosangman;
-        }
-        if (game->ttg == thua) {
+        if (game->ttg == thang || game->ttg == thua) {
             game->thoatgame();
         }
     }

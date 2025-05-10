@@ -12,6 +12,8 @@ Map* Gmap = nullptr;
 SDL_Renderer* Game::renderer = nullptr;
 Game::Game() : isRunning(false), window(nullptr), pacman(nullptr),font(nullptr) {}
 Game::~Game() {}
+Mix_Music* Game::backgroundMusic = nullptr;
+Mix_Chunk* Game::coinSound = nullptr;
 
 void Game::init(const char* title, int xpos, int ypos, int width, int height, bool fullscreen) {
     int flags = fullscreen ? SDL_WINDOW_FULLSCREEN : 0;
@@ -35,21 +37,38 @@ void Game::init(const char* title, int xpos, int ypos, int width, int height, bo
         }
         isRunning = true;
     }
+    if (Mix_Init(MIX_INIT_MP3) ==0) {
+        SDL_Log("Mix_Init failed: %s", Mix_GetError());
+        isRunning = false;
+        return;
+    }
+    if (Mix_OpenAudio(44100, MIX_DEFAULT_FORMAT, 2, 2048) < 0) {
+        SDL_Log("Mix_OpenAudio failed: %s", Mix_GetError());
+        isRunning = false;
+        return;
+    }
+    backgroundMusic = Mix_LoadMUS("sound/background_music.mp3");
+    if (backgroundMusic == nullptr) {
+        SDL_Log("Failed to load background music: %s", Mix_GetError());
+        isRunning = false;
+        return;
+    }
+
+    Mix_PlayMusic(backgroundMusic, -1);
     if (IMG_Init(IMG_INIT_PNG) == 0) {
         SDL_Log("IMG_Init failed: %s", IMG_GetError());
         isRunning = false;
         return;
+    }
+    Mix_Chunk* coinSound = Mix_LoadWAV("sound/coin_sound.wav");
+    if (coinSound == nullptr) {
+        SDL_Log("Failed to load coin sound: %s", Mix_GetError());
     }
     hinhGameOver = IMG_LoadTexture(renderer, "img/gameover.png");
     hinhWin = IMG_LoadTexture(renderer, "img/win.png");
     hinhNextLevel = IMG_LoadTexture(renderer, "img/sangman.png");
     if (!hinhGameOver) {
         SDL_Log("Failed to load game over image: %s", IMG_GetError());
-        isRunning = false;
-        return;
-    }
-    if (!hinhNextLevel) {
-        SDL_Log("Failed to load next level image: %s", IMG_GetError());
         isRunning = false;
         return;
     }
@@ -76,12 +95,14 @@ void Game::loadLevel(int level) {
         */
     }
     else if (level == 2) {
+        /*
         enemies.push_back(new GiangVien("img/giangvien.jpg", 200, 96));
         enemies.push_back(new GiangVien("img/giangvien.jpg", 250, 224));
         enemies.push_back(new GiangVien("img/giangvien.jpg", 300, 288));
         enemies.push_back(new GiangVien("img/giangvien.jpg", 360, 416));
         enemies.push_back(new GiangVien("img/giangvien.jpg", 412, 480));
         enemies.push_back(new GiangVien("img/giangvien.jpg", 125, 544));
+        */
     }
     else {
         isRunning = false;
@@ -142,6 +163,9 @@ void Game::update() {
 
     if (Gmap->collectCoinAt(row, col)) {
         score += 10;
+        if (coinSound != nullptr) {
+            Mix_PlayChannel(-1, coinSound, 0);
+        }
     }
 
     if (Gmap->demcoin() == 0) {
@@ -246,25 +270,21 @@ void Game::render() {
         SDL_Rect dstRect = { (640 - 400) / 2, (640 - 200) / 2, 400, 200 };
         if (currentlv == 1) {
             SDL_RenderCopy(renderer, hinhNextLevel, NULL, &dstRect);
+            SDL_Rect continueRect = { 200, 350, 240, 80 };
+            SDL_Surface* continueSurface = IMG_Load("img/continue.png");
+            SDL_Texture* continueTexture = SDL_CreateTextureFromSurface(renderer, continueSurface);
+            SDL_FreeSurface(continueSurface);
+            SDL_RenderCopy(renderer, continueTexture, NULL, &continueRect);
+            SDL_DestroyTexture(continueTexture);
         }
         else if (currentlv == 2) {
             SDL_RenderCopy(renderer, hinhWin, NULL, &dstRect);
         }
-        SDL_Rect continueRect = { 200, 350, 240, 80 };
         SDL_Rect quitRect = { 200, 450, 240, 80 };
-
-        SDL_Surface* continueSurface = IMG_Load("img/continue.png");
-        SDL_Texture* continueTexture = SDL_CreateTextureFromSurface(renderer, continueSurface);
-        SDL_FreeSurface(continueSurface);
-
         SDL_Surface* quitSurface = IMG_Load("img/exit.png");
         SDL_Texture* quitTexture = SDL_CreateTextureFromSurface(renderer, quitSurface);
         SDL_FreeSurface(quitSurface);
-
-        SDL_RenderCopy(renderer, continueTexture, NULL, &continueRect);
         SDL_RenderCopy(renderer, quitTexture, NULL, &quitRect);
-
-        SDL_DestroyTexture(continueTexture);
         SDL_DestroyTexture(quitTexture);
     }
 
@@ -285,7 +305,8 @@ void Game::thoatgame() {
                     SDL_Rect quitRect = { 200, 450, 240, 80 };
                     if (x >= quitRect.x && x <= quitRect.x + quitRect.w &&
                         y >= quitRect.y && y <= quitRect.y + quitRect.h) {
-                        isRunning = false;
+                        ttg = chosangman;
+						GameOver = false;
                         return;
                     }
                 }
@@ -321,6 +342,10 @@ void Game::clean() {
     if (font) {
         TTF_CloseFont(font);
         font = nullptr;
+    }
+    if (backgroundMusic) {
+        Mix_FreeMusic(backgroundMusic);
+        backgroundMusic = nullptr;
     }
     TTF_Quit();
     SDL_DestroyWindow(window);
