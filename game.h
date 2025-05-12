@@ -40,9 +40,6 @@ public:
 	void loadLevel(int level);
     
     static SDL_Renderer* renderer;
-    static Mix_Music* backgroundMusic;
-    static Mix_Chunk* coinSound;
-
     tinhtranggame ttg = chosangman;
     void showMenu();
 

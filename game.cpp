@@ -12,8 +12,6 @@ Map* Gmap = nullptr;
 SDL_Renderer* Game::renderer = nullptr;
 Game::Game() : isRunning(false), window(nullptr), pacman(nullptr),font(nullptr) {}
 Game::~Game() {}
-Mix_Music* Game::backgroundMusic = nullptr;
-Mix_Chunk* Game::coinSound = nullptr;
 
 void Game::init(const char* title, int xpos, int ypos, int width, int height, bool fullscreen) {
     int flags = fullscreen ? SDL_WINDOW_FULLSCREEN : 0;
@@ -37,35 +35,10 @@ void Game::init(const char* title, int xpos, int ypos, int width, int height, bo
         }
         isRunning = true;
     }
-    int mixFlags = MIX_INIT_MP3 | MIX_INIT_OGG;
-    int initted = Mix_Init(mixFlags);
-    if ((initted & mixFlags) != mixFlags) {
-        SDL_Log("Mix_Init failed: %s", Mix_GetError());
-        isRunning = false;
-        return;
-    }
-
-    if (Mix_OpenAudio(44100, MIX_DEFAULT_FORMAT, 2, 2048) < 0) {
-        SDL_Log("Mix_OpenAudio failed: %s", Mix_GetError());
-        isRunning = false;
-        return;
-    }
-    backgroundMusic = Mix_LoadMUS("sound/background_music.mp3");
-    if (backgroundMusic == nullptr) {
-        SDL_Log("Failed to load background music: %s", Mix_GetError());
-        isRunning = false;
-        return;
-    }
-
-    Mix_PlayMusic(backgroundMusic, -1);
     if (IMG_Init(IMG_INIT_PNG) == 0) {
         SDL_Log("IMG_Init failed: %s", IMG_GetError());
         isRunning = false;
         return;
-    }
-    coinSound = Mix_LoadWAV("sound/coin_sound.wav");
-    if (coinSound == nullptr) {
-        SDL_Log("Failed to load coin sound: %s", Mix_GetError());
     }
     hinhGameOver = IMG_LoadTexture(renderer, "img/gameover.png");
     hinhWin = IMG_LoadTexture(renderer, "img/win.png");
@@ -89,23 +62,23 @@ void Game::loadLevel(int level) {
     pacman = new Pacman("img/bg21.jpg", 1, 1);
 
     if (level == 1) {
-        /*
+        
         enemies.push_back(new GiangVien("img/giangvien.jpg", 150, 96));
         enemies.push_back(new GiangVien("img/giangvien.jpg", 350, 544));
         enemies.push_back(new GiangVien("img/giangvien.jpg", 200, 288));
         enemies.push_back(new GiangVien("img/giangvien.jpg", 250, 480));
         enemies.push_back(new GiangVien("img/giangvien.jpg", 100, 32));
-        */
+        
     }
     else if (level == 2) {
-        /*
+        
         enemies.push_back(new GiangVien("img/giangvien.jpg", 200, 96));
         enemies.push_back(new GiangVien("img/giangvien.jpg", 250, 224));
         enemies.push_back(new GiangVien("img/giangvien.jpg", 300, 288));
         enemies.push_back(new GiangVien("img/giangvien.jpg", 360, 416));
         enemies.push_back(new GiangVien("img/giangvien.jpg", 412, 480));
         enemies.push_back(new GiangVien("img/giangvien.jpg", 125, 544));
-        */
+        
     }
     else {
         isRunning = false;
@@ -166,9 +139,6 @@ void Game::update() {
 
     if (Gmap->collectCoinAt(row, col)) {
         score += 10;
-        if (coinSound != nullptr) {
-            Mix_PlayChannel(-1, coinSound, 0);
-        }
     }
 
     if (Gmap->demcoin() == 0) {
@@ -346,16 +316,6 @@ void Game::clean() {
         TTF_CloseFont(font);
         font = nullptr;
     }
-    if (backgroundMusic) {
-        Mix_FreeMusic(backgroundMusic);
-        backgroundMusic = nullptr;
-    }
-    if (coinSound) {
-        Mix_FreeChunk(coinSound);
-        coinSound = nullptr;
-    }
-    Mix_CloseAudio();
-    Mix_Quit();
     TTF_Quit();
     SDL_DestroyWindow(window);
     SDL_DestroyRenderer(renderer);
