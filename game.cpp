@@ -192,9 +192,15 @@ void Game::showMenu() {
 
                 if (x >= startRect.x && x <= startRect.x + startRect.w &&
                     y >= startRect.y && y <= startRect.y + startRect.h) {
+                    GameOver = false;
+                    BanThang = false;
+                    score = 0;
+                    currentlv = 1;
+                    loadLevel(currentlv);
                     ttg = tt;
                     inMenu = false;
                 }
+
 
                 if (x >= quitRect.x && x <= quitRect.x + quitRect.w &&
                     y >= quitRect.y && y <= quitRect.y + quitRect.h) {

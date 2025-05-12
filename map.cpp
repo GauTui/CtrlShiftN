@@ -52,6 +52,7 @@ int level2[20][20] = {
 
 Map::Map() {
     wall = TextureManager::LoadTexture("map/wall.png");
+    background = TextureManager::LoadTexture("img/bkg.jpg");
     coinTexture = TextureManager::LoadTexture("map/coin.png");
     src = { 0, 0, TILE_SIZE, TILE_SIZE };
     dest = { 0, 0, TILE_SIZE, TILE_SIZE };
@@ -95,6 +96,9 @@ bool Map::isWall(int x, int y) const {
 }
 
 void Map::drawMap() {
+    SDL_Rect fullRect = { 0, 0, 640, 640 };
+    SDL_RenderCopy(Game::renderer, background, NULL, &fullRect);
+
     for (int row = 0; row < 20; row++) {
         for (int col = 0; col < 20; col++) {
             int tileType = map[row][col];
