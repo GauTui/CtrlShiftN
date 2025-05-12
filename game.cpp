@@ -200,8 +200,6 @@ void Game::showMenu() {
                     ttg = tt;
                     inMenu = false;
                 }
-
-
                 if (x >= quitRect.x && x <= quitRect.x + quitRect.w &&
                     y >= quitRect.y && y <= quitRect.y + quitRect.h) {
                     ttg = thua;
