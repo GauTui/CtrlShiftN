@@ -35,7 +35,7 @@ void Game::init(const char* title, int xpos, int ypos, int width, int height, bo
         }
         isRunning = true;
     }
-    if (IMG_Init(IMG_INIT_PNG) == 0) {
+    if ((IMG_Init(IMG_INIT_PNG | IMG_INIT_JPG) & (IMG_INIT_PNG | IMG_INIT_JPG)) == 0) {
         SDL_Log("IMG_Init failed: %s", IMG_GetError());
         isRunning = false;
         return;
@@ -59,25 +59,25 @@ void Game::loadLevel(int level) {
     enemies.clear();
     Gmap->loadLevel(level);
     Gmap->initCoins();
-    pacman = new Pacman("img/bg21.jpg", 1, 1);
+    pacman = new Pacman("img/animation.png", 1, 1);
 
     if (level == 1) {
         
-        enemies.push_back(new GiangVien("img/giangvien.jpg", 150, 96));
-        enemies.push_back(new GiangVien("img/giangvien.jpg", 350, 544));
-        enemies.push_back(new GiangVien("img/giangvien.jpg", 200, 288));
-        enemies.push_back(new GiangVien("img/giangvien.jpg", 250, 480));
-        enemies.push_back(new GiangVien("img/giangvien.jpg", 100, 32));
+        enemies.push_back(new GiangVien("img/animationboss.png", 150, 96));
+        enemies.push_back(new GiangVien("img/animationboss.png", 350, 544));
+        enemies.push_back(new GiangVien("img/animationboss.png", 200, 288));
+        enemies.push_back(new GiangVien("img/animationboss.png", 250, 480));
+        enemies.push_back(new GiangVien("img/animationboss.png", 100, 32));
         
     }
     else if (level == 2) {
         
-        enemies.push_back(new GiangVien("img/giangvien.jpg", 200, 96));
-        enemies.push_back(new GiangVien("img/giangvien.jpg", 250, 224));
-        enemies.push_back(new GiangVien("img/giangvien.jpg", 300, 288));
-        enemies.push_back(new GiangVien("img/giangvien.jpg", 360, 416));
-        enemies.push_back(new GiangVien("img/giangvien.jpg", 412, 480));
-        enemies.push_back(new GiangVien("img/giangvien.jpg", 125, 544));
+        enemies.push_back(new GiangVien("img/animationboss.png", 200, 96));
+        enemies.push_back(new GiangVien("img/animationboss.png", 250, 224));
+        enemies.push_back(new GiangVien("img/animationboss.png", 300, 288));
+        enemies.push_back(new GiangVien("img/animationboss.png", 360, 416));
+        enemies.push_back(new GiangVien("img/animationboss.png", 412, 480));
+        enemies.push_back(new GiangVien("img/animationboss.png", 125, 544));
         
     }
     else {
@@ -204,6 +204,7 @@ void Game::showMenu() {
                     y >= quitRect.y && y <= quitRect.y + quitRect.h) {
                     ttg = thua;
                     inMenu = false;
+					isRunning = false;
                 }
             }
         }

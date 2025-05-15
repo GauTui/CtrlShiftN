@@ -11,14 +11,15 @@ int main(int argc, char* argv[]) {
 
     game = new Game();
     game->init("Lai Tuan Duc-24021414--UETman", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, 640, 640, false);
+
     while (game->running()) {
         if (game->ttg == chosangman) {
             game->showMenu();
+            if (!game->running()) break;
         }
 
         if (game->ttg == tt) {
             frameStart = SDL_GetTicks();
-
             game->handleEvents();
             game->update();
             game->render();
@@ -28,8 +29,9 @@ int main(int argc, char* argv[]) {
                 SDL_Delay(frameDelay - frameTime);
             }
         }
-        if (game->ttg == thang || game->ttg == thua) {
+        if ((game->ttg == thang || game->ttg == thua) && game->running()) {
             game->thoatgame();
+            if (!game->running()) break;
         }
     }
     game->clean();
