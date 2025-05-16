@@ -7,7 +7,7 @@
 #include <sstream>
 #include <string>
 #include"honma.h"
-#include<vector.>
+#include<vector>
 #include<SDL_mixer.h>
 
 enum tinhtranggame {
@@ -29,7 +29,7 @@ class Game {
 public:
     Game();
     ~Game();
-
+    void startGame();
     void init(const char* title, int xpos, int ypos, int width, int height, bool fullscreen);
     void handleEvents();
     void update();
@@ -38,10 +38,12 @@ public:
     bool running() { return isRunning; }
     void thoatgame();
 	void loadLevel(int level);
-    
     static SDL_Renderer* renderer;
     tinhtranggame ttg = chosangman;
     void showMenu();
+    Mix_Music* backgroundMusic = nullptr;
+    Mix_Chunk* coinSound = nullptr;
+    Mix_Chunk* hitSound = nullptr;
 
 private:
     bool isRunning;
@@ -52,6 +54,8 @@ private:
     SDL_Texture* hinhWin = nullptr;
 	SDL_Texture* hinhNextLevel = nullptr;
     TTF_Font* font;
+    SDL_Rect startRect;
+    SDL_Rect quitRect;
     Pacman* pacman;
     void renderScore();
     std::vector<GiangVien*> enemies;

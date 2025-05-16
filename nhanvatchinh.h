@@ -2,7 +2,7 @@
 ///nhanvatchinh.h
 #include <SDL.h>
 #include"honma.h"
-enum huongdichuyen { UP, DOWN, LEFT, RIGHT };
+enum huongdichuyen {NONE, UP, DOWN, LEFT, RIGHT };
 class Pacman {
 public:
     Pacman(const char* textureFile, int tileX, int tileY);
@@ -18,6 +18,7 @@ private:
     int currentFrame;
     int frameDelay;
     int frameTimer;
+    huongdichuyen pendingDirection = NONE;
     huongdichuyen huong = RIGHT;
     SDL_Texture* animTexture;
     int x, y;

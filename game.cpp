@@ -12,6 +12,8 @@ Map* Gmap = nullptr;
 SDL_Renderer* Game::renderer = nullptr;
 Game::Game() : isRunning(false), window(nullptr), pacman(nullptr),font(nullptr) {}
 Game::~Game() {}
+bool isStartHovered = false;
+bool isQuitHovered = false;
 
 void Game::init(const char* title, int xpos, int ypos, int width, int height, bool fullscreen) {
     int flags = fullscreen ? SDL_WINDOW_FULLSCREEN : 0;
@@ -40,6 +42,28 @@ void Game::init(const char* title, int xpos, int ypos, int width, int height, bo
         isRunning = false;
         return;
     }
+    if (Mix_OpenAudio(44100, MIX_DEFAULT_FORMAT, 2, 2048) < 0) {
+        SDL_Log("SDL_mixer could not initialize! SDL_mixer Error: %s", Mix_GetError());
+        isRunning = false;
+        return;
+    }
+
+    backgroundMusic = Mix_LoadMUS("audio/background.mp3");
+    if (!backgroundMusic) {
+        SDL_Log("Failed to load background music: %s", Mix_GetError());
+    }
+
+    coinSound = Mix_LoadWAV("audio/coin.wav");
+    if (!coinSound) {
+        SDL_Log("Failed to load coin sound effect: %s", Mix_GetError());
+    }
+
+    hitSound = Mix_LoadWAV("audio/hit.wav");
+    if (!hitSound) {
+        SDL_Log("Failed to load hit sound effect: %s", Mix_GetError());
+    }
+
+    Mix_PlayMusic(backgroundMusic, -1);
     hinhGameOver = IMG_LoadTexture(renderer, "img/gameover.png");
     hinhWin = IMG_LoadTexture(renderer, "img/win.png");
     hinhNextLevel = IMG_LoadTexture(renderer, "img/sangman.png");
@@ -89,6 +113,7 @@ void Game::kiemtravacham() {
     for (auto enemy : enemies) {
         SDL_Rect enemyRect = enemy->getRect();
         if (SDL_HasIntersection(&pacRect, &enemyRect)) {
+            Mix_PlayChannel(-1, hitSound, 0);
 			ttg = thua;
             GameOver = true;
             return;
@@ -103,6 +128,7 @@ void Game::handleEvents() {
         isRunning = false;
         return;
     }
+
     if (ttg == thua || ttg == thang) {
         if (event.type == SDL_MOUSEBUTTONDOWN || event.type == SDL_KEYDOWN) {
             if (ttg == thang && currentlv == 1) {
@@ -117,10 +143,32 @@ void Game::handleEvents() {
         }
         return;
     }
+
+    if (event.type == SDL_MOUSEMOTION) {
+        int x = event.motion.x;
+        int y = event.motion.y;
+
+        isStartHovered = (x >= startRect.x && x <= startRect.x + startRect.w &&
+            y >= startRect.y && y <= startRect.y + startRect.h);
+
+        isQuitHovered = (x >= quitRect.x && x <= quitRect.x + quitRect.w &&
+            y >= quitRect.y && y <= quitRect.y + quitRect.h);
+    }
+
+    if (event.type == SDL_MOUSEBUTTONDOWN && event.button.button == SDL_BUTTON_LEFT) {
+        int x = event.button.x;
+        int y = event.button.y;
+
+        if (isStartHovered) {
+            startGame(); 
+        }
+        else if (isQuitHovered) {
+            isRunning = false; 
+        }
+    }
+
     pacman->handleInput(event);
 }
-
-
 
 void Game::update() {
     if (ttg == thua || ttg == thang || GameOver) {
@@ -139,6 +187,7 @@ void Game::update() {
 
     if (Gmap->collectCoinAt(row, col)) {
         score += 10;
+        Mix_PlayChannel(-1, coinSound, 0);
     }
 
     if (Gmap->demcoin() == 0) {
@@ -164,6 +213,15 @@ void Game::renderScore() {
     SDL_FreeSurface(textSurface);
     SDL_DestroyTexture(textTexture);
 }
+void Game::startGame() {
+    isRunning = true;
+    GameOver = false;
+    BanThang = false;
+    score = 0;
+    currentlv = 1;
+    ttg = tt;
+}
+
 void Game::showMenu() {
     SDL_Event e;
     bool inMenu = true;
@@ -171,20 +229,33 @@ void Game::showMenu() {
     SDL_Surface* bgSurface = IMG_Load("img/background.jpg");
     SDL_Texture* bgTexture = SDL_CreateTextureFromSurface(renderer, bgSurface);
     SDL_FreeSurface(bgSurface);
+
     SDL_Surface* startSurface = IMG_Load("img/start.png");
     SDL_Texture* startTexture = SDL_CreateTextureFromSurface(renderer, startSurface);
     SDL_FreeSurface(startSurface);
     SDL_Rect startRect = { 200, 300, 240, 80 };
+
     SDL_Surface* quitSurface = IMG_Load("img/exit.png");
     SDL_Texture* quitTexture = SDL_CreateTextureFromSurface(renderer, quitSurface);
     SDL_FreeSurface(quitSurface);
     SDL_Rect quitRect = { 200, 420, 240, 80 };
+
+    bool isStartHovered = false;
+    bool isQuitHovered = false;
 
     while (inMenu) {
         while (SDL_PollEvent(&e)) {
             if (e.type == SDL_QUIT) {
                 ttg = thua;
                 inMenu = false;
+            }
+            else if (e.type == SDL_MOUSEMOTION) {
+                int x = e.motion.x;
+                int y = e.motion.y;
+                isStartHovered = (x >= startRect.x && x <= startRect.x + startRect.w &&
+                    y >= startRect.y && y <= startRect.y + startRect.h);
+                isQuitHovered = (x >= quitRect.x && x <= quitRect.x + quitRect.w &&
+                    y >= quitRect.y && y <= quitRect.y + quitRect.h);
             }
             else if (e.type == SDL_MOUSEBUTTONDOWN) {
                 int x = e.button.x;
@@ -204,20 +275,40 @@ void Game::showMenu() {
                     y >= quitRect.y && y <= quitRect.y + quitRect.h) {
                     ttg = thua;
                     inMenu = false;
-					isRunning = false;
+                    isRunning = false;
                 }
             }
         }
+
         SDL_RenderClear(renderer);
-        SDL_RenderCopy(renderer, bgTexture, NULL, NULL);               
-        SDL_RenderCopy(renderer, startTexture, NULL, &startRect);    
-        SDL_RenderCopy(renderer, quitTexture, NULL, &quitRect);       
+        SDL_RenderCopy(renderer, bgTexture, NULL, NULL);
+        SDL_RenderCopy(renderer, startTexture, NULL, &startRect);
+        SDL_RenderCopy(renderer, quitTexture, NULL, &quitRect);
+
+        if (isStartHovered) {
+            SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_BLEND);
+            SDL_SetRenderDrawColor(renderer, 0, 0, 0, 100); 
+            SDL_Rect overlay = startRect;
+            SDL_RenderFillRect(renderer, &overlay);
+            SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_NONE);
+        }
+
+        if (isQuitHovered) {
+            SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_BLEND);
+            SDL_SetRenderDrawColor(renderer, 0, 0, 0, 100);
+            SDL_Rect overlay = quitRect;
+            SDL_RenderFillRect(renderer, &overlay);
+            SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_NONE);
+        }
+
         SDL_RenderPresent(renderer);
     }
+
     SDL_DestroyTexture(bgTexture);
     SDL_DestroyTexture(startTexture);
     SDL_DestroyTexture(quitTexture);
 }
+
 void Game::render() {
     SDL_RenderClear(renderer);
     Gmap->drawMap();
@@ -281,6 +372,7 @@ void Game::thoatgame() {
                 int y = e.button.y;
                 if (GameOver) {
                     SDL_Rect quitRect = { 200, 450, 240, 80 };
+
                     if (x >= quitRect.x && x <= quitRect.x + quitRect.w &&
                         y >= quitRect.y && y <= quitRect.y + quitRect.h) {
                         ttg = chosangman;
@@ -325,4 +417,19 @@ void Game::clean() {
     SDL_DestroyWindow(window);
     SDL_DestroyRenderer(renderer);
     SDL_Quit();
+    if (backgroundMusic) {
+        Mix_FreeMusic(backgroundMusic);
+        backgroundMusic = nullptr;
+    }
+    if (coinSound) {
+        Mix_FreeChunk(coinSound);
+        coinSound = nullptr;
+    }
+    if (hitSound) {
+        Mix_FreeChunk(hitSound);
+        hitSound = nullptr;
+    }
+
+    Mix_CloseAudio();
+
 }
