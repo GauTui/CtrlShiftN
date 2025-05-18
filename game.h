@@ -44,6 +44,9 @@ public:
     Mix_Music* backgroundMusic = nullptr;
     Mix_Chunk* coinSound = nullptr;
     Mix_Chunk* hitSound = nullptr;
+    Mix_Chunk* loseSound;
+    Mix_Chunk* winSound;
+    Mix_Music* menuMusic;
 
 private:
     bool isRunning;

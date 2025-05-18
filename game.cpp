@@ -47,18 +47,30 @@ void Game::init(const char* title, int xpos, int ypos, int width, int height, bo
         isRunning = false;
         return;
     }
+    loseSound = Mix_LoadWAV("sound/lose.wav");
+    if (!loseSound) {
+        SDL_Log("Failed to load lose sound: %s", Mix_GetError());
+    }
+    menuMusic = Mix_LoadMUS("sound/menu.mp3");
+    if (!menuMusic) {
+        SDL_Log("Failed to load menu music: %s", Mix_GetError());
+    }
+    winSound = Mix_LoadWAV("sound/win.wav");
+    if (!winSound) {
+        SDL_Log("Failed to load win sound: %s", Mix_GetError());
+    }
 
-    backgroundMusic = Mix_LoadMUS("audio/background.mp3");
+    backgroundMusic = Mix_LoadMUS("sound/background.mp3");
     if (!backgroundMusic) {
         SDL_Log("Failed to load background music: %s", Mix_GetError());
     }
 
-    coinSound = Mix_LoadWAV("audio/coin.wav");
+    coinSound = Mix_LoadWAV("sound/coin.wav");
     if (!coinSound) {
         SDL_Log("Failed to load coin sound effect: %s", Mix_GetError());
     }
 
-    hitSound = Mix_LoadWAV("audio/hit.wav");
+    hitSound = Mix_LoadWAV("sound/hit.wav");
     if (!hitSound) {
         SDL_Log("Failed to load hit sound effect: %s", Mix_GetError());
     }
@@ -114,6 +126,8 @@ void Game::kiemtravacham() {
         SDL_Rect enemyRect = enemy->getRect();
         if (SDL_HasIntersection(&pacRect, &enemyRect)) {
             Mix_PlayChannel(-1, hitSound, 0);
+            Mix_HaltMusic();
+            Mix_PlayChannel(-1, loseSound, 0);
 			ttg = thua;
             GameOver = true;
             return;
@@ -193,6 +207,8 @@ void Game::update() {
     if (Gmap->demcoin() == 0) {
         ttg = thang;
         BanThang = true;
+        Mix_HaltMusic();
+        Mix_PlayChannel(-1, winSound, 0);
     }
 }
 
@@ -214,6 +230,8 @@ void Game::renderScore() {
     SDL_DestroyTexture(textTexture);
 }
 void Game::startGame() {
+    Mix_HaltMusic();
+    Mix_PlayMusic(backgroundMusic, -1);
     isRunning = true;
     GameOver = false;
     BanThang = false;
@@ -244,6 +262,8 @@ void Game::showMenu() {
     bool isQuitHovered = false;
 
     while (inMenu) {
+        Mix_HaltMusic();
+        Mix_PlayMusic(menuMusic, -1);
         while (SDL_PollEvent(&e)) {
             if (e.type == SDL_QUIT) {
                 ttg = thua;
@@ -263,13 +283,9 @@ void Game::showMenu() {
 
                 if (x >= startRect.x && x <= startRect.x + startRect.w &&
                     y >= startRect.y && y <= startRect.y + startRect.h) {
-                    GameOver = false;
-                    BanThang = false;
-                    score = 0;
-                    currentlv = 1;
-                    loadLevel(currentlv);
-                    ttg = tt;
+					Mix_HaltMusic();
                     inMenu = false;
+                    startGame();
                 }
                 if (x >= quitRect.x && x <= quitRect.x + quitRect.w &&
                     y >= quitRect.y && y <= quitRect.y + quitRect.h) {
@@ -428,6 +444,18 @@ void Game::clean() {
     if (hitSound) {
         Mix_FreeChunk(hitSound);
         hitSound = nullptr;
+    }
+    if (menuMusic) {
+        Mix_FreeMusic(menuMusic);
+        menuMusic = nullptr;
+    }
+    if (loseSound) {
+        Mix_FreeChunk(loseSound);
+        loseSound = nullptr;
+    }
+    if (winSound) {
+        Mix_FreeChunk(winSound);
+        winSound = nullptr;
     }
 
     Mix_CloseAudio();
