@@ -17,13 +17,13 @@ int main(int argc, char* argv[]) {
             game->showMenu();
             if (!game->running()) break;
         }
-
-        if (game->ttg == tt) {
+        if (game->ttg == tt || game->ttg == tamdung) {
             frameStart = SDL_GetTicks();
             game->handleEvents();
-            game->update();
+            if (game->ttg == tt) {
+                game->update();
+            }
             game->render();
-
             frameTime = SDL_GetTicks() - frameStart;
             if (frameDelay > frameTime) {
                 SDL_Delay(frameDelay - frameTime);

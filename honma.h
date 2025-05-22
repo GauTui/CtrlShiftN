@@ -2,9 +2,9 @@
 #include <SDL.h>
 #include<string>
 
-class GiangVien {
+class Ghost {
 public:
-	GiangVien(const std::string path, int x, int y);
+	Ghost(const std::string path, int x, int y);
 	void update();
 	void render(SDL_Renderer* renderer);
 	SDL_Rect getRect() const;

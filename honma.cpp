@@ -2,7 +2,7 @@
 #include "Game.h"
 #include <SDL_image.h>
 
-GiangVien::GiangVien(const std::string path, int x, int y) : huongchuyendong(0) {
+Ghost::Ghost(const std::string path, int x, int y) : huongchuyendong(0) {
 	rect = { x, y, 32, 32 };
 	loadTexture(path, Game::renderer);
 	bossgame = IMG_LoadTexture(Game::renderer, "img/animationboss.png");
@@ -12,13 +12,13 @@ GiangVien::GiangVien(const std::string path, int x, int y) : huongchuyendong(0) 
 	frameDelay = 10;
 	frameTimer = 0;
 }
-void GiangVien::loadTexture(const std::string& path, SDL_Renderer* renderer) {
+void Ghost::loadTexture(const std::string& path, SDL_Renderer* renderer) {
 	texture = IMG_LoadTexture(renderer, path.c_str());
 	if (!texture) {
 		SDL_Log("Unable to load texture: %s", IMG_GetError());
 	}
 }
-void GiangVien::update() {
+void Ghost::update() {
 	rect.x += (huongchuyendong == 0) ? 2 : -2;
 	if (rect.x < 0 || rect.x + rect.w > 640) {
 		huongchuyendong = 1 - huongchuyendong;
@@ -30,7 +30,7 @@ void GiangVien::update() {
 	}
 
 }
-void GiangVien::render(SDL_Renderer* renderer) {
+void Ghost::render(SDL_Renderer* renderer) {
 	SDL_Rect rect = {
 	(currentFrame % 2) * frameWidth,
 	(currentFrame / 2) * frameHeight,
@@ -44,6 +44,6 @@ void GiangVien::render(SDL_Renderer* renderer) {
 
 	SDL_RenderCopyEx(renderer, bossgame, &rect, &this->rect, 0.0, nullptr, flip);
 }
-SDL_Rect GiangVien::getRect() const {
+SDL_Rect Ghost::getRect() const {
 	return rect;
 }

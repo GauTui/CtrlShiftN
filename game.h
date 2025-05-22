@@ -11,10 +11,11 @@
 #include<SDL_mixer.h>
 
 enum tinhtranggame {
-    tt,
-    thang,
-    thua,
-    chosangman
+    tt,    //dangchoi
+    thang,     // winchosangman
+    thua,    //thuachuanbiquayvemenu
+    chosangman,     //manhinhcho
+    tamdung
 };
 extern tinhtranggame ttg;
 extern int currentlv;
@@ -38,29 +39,50 @@ public:
     bool running() { return isRunning; }
     void thoatgame();
 	void loadLevel(int level);
+    bool loadPauseMenuTextures();
     static SDL_Renderer* renderer;
     tinhtranggame ttg = chosangman;
     void showMenu();
-    Mix_Music* backgroundMusic = nullptr;
-    Mix_Chunk* coinSound = nullptr;
-    Mix_Chunk* hitSound = nullptr;
-    Mix_Chunk* loseSound;
-    Mix_Chunk* winSound;
     Mix_Music* menuMusic;
+    Mix_Music* gameMusic;
+    SDL_Texture* texLoaBat;
+    SDL_Texture* texLoaTat;
+    SDL_Rect loaRect;
+    bool isSoundOn;
+    bool isMuted = false;
 
 private:
     bool isRunning;
     bool GameOver = false;
 	bool BanThang = false;
+    bool isOverlayVisible = false;
+
     SDL_Window* window;
     SDL_Texture* hinhGameOver = nullptr;
     SDL_Texture* hinhWin = nullptr;
 	SDL_Texture* hinhNextLevel = nullptr;
+
+	SDL_Texture* pauseTexture = nullptr;
+    SDL_Texture* exitTexture = nullptr;
+    SDL_Texture* resumeTexture = nullptr;
+    SDL_Texture* restartTexture = nullptr;
+
+    SDL_Texture* buttonTexture = nullptr;
+    SDL_Texture* overlayTexture = nullptr;
+
+    SDL_Texture* closeButtonTexture = nullptr;
+
+    SDL_Rect buttonRect;
+    SDL_Rect overlayRect;
+	SDL_Rect pauseRect;
+
+    SDL_Texture* quitBtnTex = nullptr;
+    SDL_Rect pauseBgRect, resumeBtnRect, restartBtnRect, quitBtnRect;
     TTF_Font* font;
     SDL_Rect startRect;
     SDL_Rect quitRect;
     Pacman* pacman;
     void renderScore();
-    std::vector<GiangVien*> enemies;
+    std::vector<Ghost*> enemies;
     void kiemtravacham();
 };
